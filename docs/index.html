@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Reuniones - Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #1a365d;
+      --primary-light: #2c5282;
+      --secondary-color: #3182ce;
+      --accent-color: #0066cc;
+      --success-color: #38a169;
+      --success-bg: #c6f6d5;
+      --warning-color: #d69e2e;
+      --warning-bg: #fefcbf;
+      --danger-color: #e53e3e;
+      --danger-bg: #fed7d7;
+      --info-color: #3182ce;
+      --info-bg: #bee3f8;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7fafc;
+      --bg-tertiary: #edf2f7;
+      --border-color: #e2e8f0;
+      --border-radius: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --transition: all 0.2s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-title h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .header-title .subtitle {
+      font-size: 12px;
+      color: var(--danger-color);
+      font-weight: 500;
+    }
+    .header-nav {
+      display: flex;
+      gap: 4px;
+    }
+    .nav-btn {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+    .nav-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--primary-color);
+    }
+    .nav-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
+    .main-content {
+      padding: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    .view { display: none; }
+    .view.active { display: block; }
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 16px 24px;
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      margin-bottom: 24px;
+      align-items: flex-end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 150px;
+      flex: 1;
+    }
+    .filter-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .filter-group select, .filter-group input {
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      background: var(--bg-primary);
+    }
+    .btn-limpiar {
+      padding: 10px 24px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+    .card {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-card { grid-column: span 3; }
+    .kpi-main { text-align: center; padding: 20px 0; }
+    .kpi-value {
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--danger-color);
+      line-height: 1;
+    }
+    .kpi-bar {
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      margin: 16px 0;
+      overflow: hidden;
+    }
+    .kpi-bar-fill {
+      height: 100%;
+      background: var(--danger-color);
+      border-radius: 3px;
+    }
+    .kpi-stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+    .kpi-stat { display: flex; flex-direction: column; }
+    .kpi-stat-value { font-size: 24px; font-weight: 600; }
+    .kpi-stat-value.total { color: var(--primary-color); }
+    .kpi-stat-value.ok { color: var(--success-color); }
+    .kpi-stat-value.proceso { color: var(--info-color); }
+    .kpi-stat-value.noprog { color: var(--text-muted); }
+    .kpi-stat-value.retrasado { color: var(--danger-color); }
+    .kpi-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+    .kpi-meta { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 8px; }
+    .chart-card { grid-column: span 4; }
+    .chart-container { position: relative; height: 300px; }
+    .responsables-card { grid-column: span 5; }
+    .responsables-header {
+      display: grid;
+      grid-template-columns: 2fr repeat(7, 1fr);
+      padding: 8px 0;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 8px;
+    }
+    .responsables-header span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .responsables-header span:first-child { text-align: left; }
+    .meta-indicators { font-size: 11px; color: var(--text-muted); }
+    .responsables-list { max-height: 350px; overflow-y: auto; }
+    .responsable-row {
+      display: grid;
+      grid-template-columns: 2fr repeat(7, 1fr);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--bg-tertiary);
+      align-items: center;
+      font-size: 13px;
+    }
+    .responsable-name { font-weight: 500; }
+    .responsable-stat { text-align: center; }
+    .responsable-stat.ok { color: var(--success-color); }
+    .responsable-stat.proceso { color: var(--info-color); }
+    .responsable-stat.noprog { color: var(--text-muted); }
+    .responsable-stat.retrasado { color: var(--danger-color); }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .badge-success { background: var(--success-bg); color: var(--success-color); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning-color); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger-color); }
+    .area-card { grid-column: span 6; }
+    .bars-container { display: flex; flex-direction: column; gap: 12px; }
+    .bar-item { display: flex; align-items: center; gap: 12px; }
+    .bar-label { min-width: 180px; font-size: 13px; color: var(--text-secondary); text-align: right; }
+    .bar-track {
+      flex: 1;
+      height: 24px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+    }
+    .bar-fill span { font-size: 12px; font-weight: 600; color: white; }
+
+    /* Form Styles */
+    .form-container {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 24px;
+    }
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .form-header-left { display: flex; align-items: center; gap: 12px; }
+    .form-header-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--bg-tertiary);
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .form-header h2 { font-size: 18px; font-weight: 600; color: var(--primary-color); }
+    .form-header p { font-size: 13px; color: var(--text-muted); }
+    .form-header-actions { display: flex; gap: 8px; }
+    .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full-width { grid-column: span 3; }
+    .form-group.half-width { grid-column: span 2; }
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    .form-group label .required { color: var(--danger-color); }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      font-family: var(--font-family);
+    }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .indicadores-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .indicador-chip {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .indicador-chip.selected {
+      background: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: white;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--primary-color); color: white; }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-secondary); }
+    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+
+    /* Table Styles */
+    .table-container {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .table-stats { display: flex; gap: 16px; }
+    .table-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius);
+    }
+    .table-stat-value { font-size: 20px; font-weight: 600; }
+    .table-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    tbody td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--bg-tertiary);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-concluido { background: var(--success-bg); color: var(--success-color); }
+    .status-proceso { background: var(--info-bg); color: var(--info-color); }
+    .status-retrasado { background: var(--danger-bg); color: var(--danger-color); }
+    .herramienta-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--info-bg);
+      color: var(--info-color);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .indicador-link { color: var(--secondary-color); font-weight: 500; text-decoration: none; }
+    .motivo-title { color: var(--secondary-color); font-weight: 500; cursor: pointer; }
+    .motivo-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .action-btn {
+      padding: 6px 12px;
+      background: transparent;
+      border: none;
+      color: var(--secondary-color);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--bg-tertiary);
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      background: var(--bg-tertiary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content h2 { font-size: 20px; color: var(--primary-color); margin-bottom: 8px; }
+    .modal-content p { color: var(--text-muted); margin-bottom: 24px; }
+    .modal-content .form-group { text-align: left; margin-bottom: 16px; }
+    .btn-block { width: 100%; }
+
+    /* Matriz */
+    .matriz-container {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .matriz-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary-color);
+      margin-bottom: 16px;
+    }
+    .matriz-table { width: 100%; border-collapse: collapse; }
+    .matriz-table th, .matriz-table td {
+      padding: 12px 16px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+    .matriz-table th {
+      background: var(--bg-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .matriz-table th.total-header { background: var(--secondary-color); color: white; }
+    .matriz-table td.metric-name { text-align: left; font-weight: 500; }
+    .matriz-cell { padding: 8px; border-radius: 4px; font-weight: 600; font-size: 13px; }
+    .matriz-cell.success { background: var(--success-bg); color: var(--success-color); }
+    .matriz-cell.warning { background: var(--warning-bg); color: var(--warning-color); }
+    .matriz-cell.danger { background: var(--danger-bg); color: var(--danger-color); }
+    .matriz-cell.neutral { background: var(--bg-tertiary); color: var(--text-muted); }
+
+    @media (max-width: 1200px) {
+      .dashboard-grid { grid-template-columns: repeat(6, 1fr); }
+      .kpi-card { grid-column: span 6; }
+      .chart-card { grid-column: span 3; }
+      .responsables-card { grid-column: span 6; }
+      .area-card { grid-column: span 3; }
+    }
+    @media (max-width: 768px) {
+      .header { flex-direction: column; gap: 16px; }
+      .header-nav { flex-wrap: wrap; justify-content: center; }
+      .nav-btn { padding: 8px 12px; font-size: 12px; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .kpi-card, .chart-card, .responsables-card, .area-card { grid-column: span 1; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width, .form-group.half-width { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="#0066cc" stroke-width="2"/>
+          <path d="M12 20L18 26L28 14" stroke="#0066cc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="header-title">
+        <h1>Gestión de Reuniones</h1>
+        <span class="subtitle">Seguimiento de acciones</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" onclick="showView('dashboard')">DASHBOARD</button>
+      <button class="nav-btn" onclick="showView('registro')">REGISTRO</button>
+      <button class="nav-btn" onclick="showView('seguimiento')">SEGUIMIENTO</button>
+      <button class="nav-btn" onclick="showView('gerencia')">GERENCIA</button>
+      <button class="nav-btn" onclick="showView('analisis')">ANÁLISIS</button>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="view active">
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>PLANTA</label>
+          <select><option>Todas</option><option>Planta Lima</option><option>Planta Arequipa</option></select>
+        </div>
+        <div class="filter-group">
+          <label>GERENCIA</label>
+          <select><option>Todas</option><option>Gerencia Operaciones</option></select>
+        </div>
+        <div class="filter-group">
+          <label>AREA</label>
+          <select><option>Todos</option><option>Producción</option><option>Calidad</option></select>
+        </div>
+        <div class="filter-group">
+          <label>TIPO REUNIÓN</label>
+          <select><option>Todas</option><option>Diaria</option><option>Semanal</option></select>
+        </div>
+        <button class="btn-limpiar">Limpiar</button>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- KPI Principal -->
+        <div class="card kpi-card">
+          <div class="card-header">
+            <span class="card-title">% CUMPLIMIENTO</span>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value">35%</div>
+          </div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill" style="width: 35%"></div>
+          </div>
+          <div class="kpi-stats">
+            <div class="kpi-stat">
+              <span class="kpi-stat-value total">164</span>
+              <span class="kpi-stat-label">Total</span>
+            </div>
+            <div class="kpi-stat">
+              <span class="kpi-stat-value ok">36</span>
+              <span class="kpi-stat-label">OK</span>
+            </div>
+            <div class="kpi-stat">
+              <span class="kpi-stat-value proceso">60</span>
+              <span class="kpi-stat-label">En proc</span>
+            </div>
+            <div class="kpi-stat">
+              <span class="kpi-stat-value noprog">0</span>
+              <span class="kpi-stat-label">NoP</span>
+            </div>
+            <div class="kpi-stat">
+              <span class="kpi-stat-value retrasado">68</span>
+              <span class="kpi-stat-label">Retr</span>
+            </div>
+          </div>
+          <div class="kpi-meta">Meta: 95%</div>
+        </div>
+
+        <!-- Gráfico Indicadores -->
+        <div class="card chart-card">
+          <div class="card-header">
+            <span class="card-title">% CUMPLIMIENTO POR INDICADOR</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-indicadores"></canvas>
+          </div>
+        </div>
+
+        <!-- Tabla Responsables -->
+        <div class="card responsables-card">
+          <div class="card-header">
+            <span class="card-title">% POR RESPONSABLE</span>
+            <div class="meta-indicators">META CUMP: 95% | META AVAN: 75%</div>
+          </div>
+          <div class="responsables-header">
+            <span>Responsable</span>
+            <span>Total</span>
+            <span>OK</span>
+            <span>En proc</span>
+            <span>No Prog</span>
+            <span>Retr</span>
+            <span>% Cump.</span>
+            <span>% Avance</span>
+          </div>
+          <div class="responsables-list">
+            <div class="responsable-row">
+              <span class="responsable-name">Leon Ochoa Usbaldo Alexander</span>
+              <span class="responsable-stat">8</span>
+              <span class="responsable-stat ok">5</span>
+              <span class="responsable-stat proceso">3</span>
+              <span class="responsable-stat noprog">0</span>
+              <span class="responsable-stat retrasado">0</span>
+              <span><span class="badge badge-success">100%</span></span>
+              <span><span class="badge badge-warning">63%</span></span>
+            </div>
+            <div class="responsable-row">
+              <span class="responsable-name">Varillas Villalobos Carlos Paulino</span>
+              <span class="responsable-stat">4</span>
+              <span class="responsable-stat ok">4</span>
+              <span class="responsable-stat proceso">0</span>
+              <span class="responsable-stat noprog">0</span>
+              <span class="responsable-stat retrasado">0</span>
+              <span><span class="badge badge-success">100%</span></span>
+              <span><span class="badge badge-success">100%</span></span>
+            </div>
+            <div class="responsable-row">
+              <span class="responsable-name">Ordoñez Campos Jazmin</span>
+              <span class="responsable-stat">2</span>
+              <span class="responsable-stat ok">1</span>
+              <span class="responsable-stat proceso">1</span>
+              <span class="responsable-stat noprog">0</span>
+              <span class="responsable-stat retrasado">0</span>
+              <span><span class="badge badge-success">100%</span></span>
+              <span><span class="badge badge-warning">50%</span></span>
+            </div>
+            <div class="responsable-row">
+              <span class="responsable-name">Castañeda Serrano Johann Vladimir</span>
+              <span class="responsable-stat">3</span>
+              <span class="responsable-stat ok">1</span>
+              <span class="responsable-stat proceso">2</span>
+              <span class="responsable-stat noprog">0</span>
+              <span class="responsable-stat retrasado">0</span>
+              <span><span class="badge badge-success">100%</span></span>
+              <span><span class="badge badge-danger">33%</span></span>
+            </div>
+            <div class="responsable-row">
+              <span class="responsable-name">Rosales Samillán Daniel Dennis</span>
+              <span class="responsable-stat">19</span>
+              <span class="responsable-stat ok">9</span>
+              <span class="responsable-stat proceso">9</span>
+              <span class="responsable-stat noprog">0</span>
+              <span class="responsable-stat retrasado">1</span>
+              <span><span class="badge badge-success">90%</span></span>
+              <span><span class="badge badge-warning">47%</span></span>
+            </div>
+            <div class="responsable-row">
+              <span class="responsable-name">Carranza Uriarte Juan Carlos</span>
+              <span class="responsable-stat">17</span>
+              <span class="responsable-stat ok">6</span>
+              <span class="responsable-stat proceso">4</span>
+              <span class="responsable-stat noprog">0</span>
+              <span class="responsable-stat retrasado">7</span>
+              <span><span class="badge badge-warning">46%</span></span>
+              <span><span class="badge badge-danger">35%</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico por Área -->
+        <div class="card area-card">
+          <div class="card-header">
+            <span class="card-title">% CUMPLIMIENTO POR ÁREA</span>
+          </div>
+          <div class="bars-container">
+            <div class="bar-item">
+              <span class="bar-label">Personas & Organización</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #38a169;"><span>100%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Excelencia Operacional</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 91%; background: #38a169;"><span>91%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Sin Asignar</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #d69e2e;"><span>50%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Operaciones Logísticas</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 46%; background: #d69e2e;"><span>46%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">SHE</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 33%; background: #3182ce;"><span>33%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Conversión</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 31%; background: #3182ce;"><span>31%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Mantenimiento</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 27%; background: #e53e3e;"><span>27%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Fabricación</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 11%; background: #e53e3e;"><span>11%</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico por Sector -->
+        <div class="card area-card">
+          <div class="card-header">
+            <span class="card-title">% CUMPLIMIENTO POR SECTOR</span>
+          </div>
+          <div class="bars-container">
+            <div class="bar-item">
+              <span class="bar-label">Almacén de Repuestos</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #38a169;"><span>100%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Personas & Organización</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #38a169;"><span>100%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Excelencia Operacional</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 91%; background: #38a169;"><span>91%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Sin Asignar</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #d69e2e;"><span>50%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">PP1</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #d69e2e;"><span>50%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">L110</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 40%; background: #3182ce;"><span>40%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Almacén de Producto Terminado</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 33%; background: #3182ce;"><span>33%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">SHE</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 33%; background: #3182ce;"><span>33%</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REGISTRO VIEW -->
+    <section id="view-registro" class="view">
+      <div class="form-container">
+        <div class="form-header">
+          <div class="form-header-left">
+            <div class="form-header-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div>
+              <h2>Registro Masivo</h2>
+              <p>Cargar múltiples acciones principales</p>
+            </div>
+          </div>
+          <div class="form-header-actions">
+            <button class="btn btn-outline">Plantilla Maestra</button>
+            <button class="btn btn-primary">Subir Excel</button>
+          </div>
+        </div>
+
+        <form>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>FECHA REGISTRO <span class="required">*</span></label>
+              <input type="date" value="2026-01-29">
+            </div>
+            <div class="form-group">
+              <label>PLANTA <span class="required">*</span></label>
+              <select><option>Seleccione Planta</option><option>Planta Lima</option></select>
+            </div>
+            <div class="form-group">
+              <label>DONDE <span class="required">*</span></label>
+              <input type="text" placeholder="Area - Sector o Lugar...">
+            </div>
+            <div class="form-group">
+              <label>TIPO REUNIÓN <span class="required">*</span></label>
+              <select><option>Seleccione</option><option>Diaria</option><option>Semanal</option></select>
+            </div>
+            <div class="form-group">
+              <label>HERRAMIENTA <span class="required">*</span></label>
+              <select><option>Seleccione</option><option>ACR</option><option>ACR - 5W2H</option></select>
+            </div>
+            <div class="form-group">
+              <label>REPORTADO POR <span class="required">*</span></label>
+              <input type="text" placeholder="...">
+            </div>
+            <div class="form-group">
+              <label>VERIFICADOR <span class="required">*</span></label>
+              <input type="text" placeholder="...">
+            </div>
+            <div class="form-group"></div>
+            <div class="form-group"></div>
+            <div class="form-group full-width">
+              <label>MOTIVO</label>
+              <textarea placeholder="Describa el motivo..."></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label>PLAN <span class="required">*</span></label>
+              <textarea placeholder="Describa el plan de acción..."></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label>INDICADOR(ES) <span class="required">*</span></label>
+              <div class="indicadores-group">
+                <button type="button" class="indicador-chip selected">P</button>
+                <button type="button" class="indicador-chip">Q</button>
+                <button type="button" class="indicador-chip">C</button>
+                <button type="button" class="indicador-chip selected">D</button>
+                <button type="button" class="indicador-chip">S</button>
+                <button type="button" class="indicador-chip">M</button>
+                <button type="button" class="indicador-chip">E</button>
+              </div>
+            </div>
+            <div class="form-group half-width">
+              <label>RESPONSABLES <span class="required">*</span></label>
+              <input type="text" placeholder="...">
+            </div>
+            <div class="form-group">
+              <label>EMAIL</label>
+              <input type="email" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="form-group">
+              <label>FECHA COMPROMISO</label>
+              <input type="date" value="2026-01-29">
+            </div>
+            <div class="form-group full-width">
+              <label>COMENTARIOS</label>
+              <textarea placeholder="Comentarios adicionales..."></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- SEGUIMIENTO VIEW -->
+    <section id="view-seguimiento" class="view">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <span style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">VISTA SEGUIMIENTO (RDG OCULTA)</span>
+      </div>
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>PLANTA</label>
+          <select><option>Todas</option></select>
+        </div>
+        <div class="filter-group">
+          <label>ÁREA</label>
+          <select><option>Todas</option></select>
+        </div>
+        <div class="filter-group">
+          <label>SECTOR</label>
+          <select><option>Todos</option></select>
+        </div>
+        <div class="filter-group">
+          <label>FECHA REG.</label>
+          <input type="date" placeholder="dd/mm/aaaa">
+        </div>
+        <div class="filter-group">
+          <label>TIPO</label>
+          <select><option>Todas</option></select>
+        </div>
+      </div>
+      <div class="filters-bar" style="margin-top: -16px;">
+        <div class="filter-group">
+          <label>PILAR TPM</label>
+          <select><option>Todos</option></select>
+        </div>
+        <div class="filter-group">
+          <label>ESTADO</label>
+          <select><option>Filtrar Estados...</option></select>
+        </div>
+        <div class="filter-group">
+          <label>REPORTADO POR</label>
+          <input type="text" placeholder="...">
+        </div>
+        <div class="filter-group">
+          <label>RESP.</label>
+          <input type="text" placeholder="...">
+        </div>
+        <div class="filter-group">
+          <label>BUSCAR</label>
+          <input type="text" placeholder="...">
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div></div>
+          <div class="table-stats">
+            <div class="table-stat"><span class="table-stat-value" style="color: var(--primary-color);">108</span><span class="table-stat-label">TOTAL</span></div>
+            <div class="table-stat"><span class="table-stat-value" style="color: var(--success-color);">29</span><span class="table-stat-label">OK</span></div>
+            <div class="table-stat"><span class="table-stat-value" style="color: var(--info-color);">32</span><span class="table-stat-label">EN PROC</span></div>
+            <div class="table-stat"><span class="table-stat-value" style="color: var(--text-muted);">0</span><span class="table-stat-label">NO PROG</span></div>
+            <div class="table-stat"><span class="table-stat-value" style="color: var(--danger-color);">47</span><span class="table-stat-label">ATR</span></div>
+            <div class="table-stat"><span class="table-stat-value" style="color: var(--secondary-color);">27%</span><span class="table-stat-label">% CUMP</span></div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ESTADO</th>
+              <th>HERRAMIENTA</th>
+              <th>PILAR TPM</th>
+              <th>IND.</th>
+              <th>MOTIVO</th>
+              <th>RESPONSABLE</th>
+              <th>F. REGISTRO</th>
+              <th>FECHA COMP.</th>
+              <th>ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="status-badge status-concluido">Concluido</span></td>
+              <td>ACR<br><span class="herramienta-badge" style="display:none;"></span></td>
+              <td>-</td>
+              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
+              <td class="motivo-cell">
+                <div class="motivo-title">Demora de atención por Unidades en Simult...</div>
+                <div class="motivo-subtitle">Elaborar ACR</div>
+              </td>
+              <td>Leon Ochoa Usbaldo Alexander</td>
+              <td>01-Jul-22</td>
+              <td>09-Jul-22</td>
+              <td><button class="action-btn">📄 Ver</button></td>
+            </tr>
+            <tr>
+              <td><span class="status-badge status-retrasado">Retrasado</span></td>
+              <td>ACR - 5W2H<br><span class="herramienta-badge">ACR-CÑ-APT-001</span></td>
+              <td>-</td>
+              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
+              <td class="motivo-cell">
+                <div class="motivo-title">[Causa Raíz] Porque no se balancea las salid...</div>
+                <div class="motivo-subtitle">[What] Balancear los envíos de unidades entre plantas...</div>
+              </td>
+              <td></td>
+              <td>09-Ene-26</td>
+              <td>20-Sep-22</td>
+              <td><button class="action-btn">📄 Ver</button></td>
+            </tr>
+            <tr>
+              <td><span class="status-badge status-concluido">Concluido</span></td>
+              <td>ACR - 5W2H<br><span class="herramienta-badge">ACR-CÑ-APT-001</span></td>
+              <td>-</td>
+              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
+              <td class="motivo-cell">
+                <div class="motivo-title">[Causa Raíz] Porque no todas las unidades c...</div>
+                <div class="motivo-subtitle">[What] Instalar GPS a todas las unidades</div>
+              </td>
+              <td></td>
+              <td>09-Ene-26</td>
+              <td>20-Sep-22</td>
+              <td><button class="action-btn">📄 Ver</button></td>
+            </tr>
+            <tr>
+              <td><span class="status-badge status-concluido">Concluido</span></td>
+              <td>ACR - 5W2H<br><span class="herramienta-badge">ACR-CÑ-APT-001</span></td>
+              <td>-</td>
+              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
+              <td class="motivo-cell">
+                <div class="motivo-title">[Causa Raíz] Porque la programación no se ...</div>
+                <div class="motivo-subtitle">[What] Programar con 1 día de anticipación los traslad...</div>
+              </td>
+              <td></td>
+              <td>09-Ene-26</td>
+              <td>20-Sep-22</td>
+              <td><button class="action-btn">📄 Ver</button></td>
+            </tr>
+            <tr>
+              <td><span class="status-badge status-concluido">Concluido</span></td>
+              <td>Plan de acción<br></td>
+              <td>Coordinación TPM</td>
+              <td><a class="indicador-link">P</a></td>
+              <td class="motivo-cell">
+                <div class="motivo-title">3.2.2) Si el progreso del Máster Plan, lo sigu...</div>
+                <div class="motivo-subtitle">Se implementará el indicando de % Adhesión al masterpl...</div>
+              </td>
+              <td>Rosales Samillán Daniel Dennis</td>
+              <td>08-Dic-25</td>
+              <td>20-Ago-25</td>
+              <td><button class="action-btn">📄 Ver</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- GERENCIA VIEW -->
+    <section id="view-gerencia" class="view">
+      <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
+        <div style="text-align: center; background: white; padding: 48px; border-radius: 12px; max-width: 400px; box-shadow: var(--shadow-md);">
+          <div style="margin-bottom: 24px;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="1.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+              <circle cx="12" cy="16" r="1"/>
+            </svg>
+          </div>
+          <h2 style="font-size: 24px; color: var(--primary-color); margin-bottom: 12px;">Acceso Gerencial</h2>
+          <p style="color: var(--text-muted); margin-bottom: 24px;">Esta sección requiere autenticación para acceder a funciones avanzadas de gestión.</p>
+          <button class="btn btn-primary" style="padding: 14px 32px; font-size: 16px;" onclick="document.getElementById('modal-login').classList.add('active')">Iniciar Sesión</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALISIS VIEW -->
+    <section id="view-analisis" class="view">
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>PLANTA</label>
+          <select><option>Todas</option></select>
+        </div>
+        <div class="filter-group">
+          <label>GERENCIA</label>
+          <select><option>Todas</option></select>
+        </div>
+        <div class="filter-group">
+          <label>AREA</label>
+          <select><option>Todas</option></select>
+        </div>
+        <div class="filter-group">
+          <label>SECTOR</label>
+          <select><option>Todos</option></select>
+        </div>
+      </div>
+
+      <div class="matriz-container">
+        <div class="matriz-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+          </svg>
+          Matriz de Herramientas (ACR, AIQ, AFP, CAPDO)
+        </div>
+        <table class="matriz-table">
+          <thead>
+            <tr>
+              <th>Metrica</th>
+              <th>+/-</th>
+              <th colspan="2">Conversión</th>
+              <th colspan="2">Fabricación</th>
+              <th colspan="2">Mantenimiento</th>
+              <th colspan="2">Operaciones Logísticas</th>
+              <th colspan="2" class="total-header">TOTAL</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              <th>% Cum</th>
+              <th>5W+2H</th>
+              <th>% Cum</th>
+              <th>5W+2H</th>
+              <th>% Cum</th>
+              <th>5W+2H</th>
+              <th>% Cum</th>
+              <th>5W+2H</th>
+              <th>% Cum</th>
+              <th>5W+2H</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="metric-name">ACR</td>
+              <td><button class="btn btn-outline" style="padding: 4px 8px;">+</button></td>
+              <td><span class="matriz-cell warning">50%</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell success">100%</span></td>
+              <td><span class="matriz-cell danger">0%</span></td>
+              <td><span class="matriz-cell danger">0%</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell warning">50%</span></td>
+              <td><span class="matriz-cell warning">67%</span></td>
+              <td><span class="matriz-cell danger">25%</span></td>
+              <td><span class="matriz-cell danger">27%</span></td>
+            </tr>
+            <tr>
+              <td class="metric-name">AIQ</td>
+              <td><button class="btn btn-outline" style="padding: 4px 8px;">+</button></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell warning">40%</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell warning">40%</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+            </tr>
+            <tr>
+              <td class="metric-name">AFP</td>
+              <td><button class="btn btn-outline" style="padding: 4px 8px;">+</button></td>
+              <td><span class="matriz-cell danger">0%</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell danger">0%</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+            </tr>
+            <tr>
+              <td class="metric-name">CAPDO</td>
+              <td><button class="btn btn-outline" style="padding: 4px 8px;"></button></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+              <td><span class="matriz-cell neutral">-</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="matriz-container">
+        <div class="matriz-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+          Matriz de Planes 5W2H
+          <span style="margin-left: auto; font-weight: 400; color: var(--text-muted); font-size: 13px;">Viendo: Falla en distribuir log</span>
+        </div>
+        <table class="matriz-table">
+          <thead>
+            <tr>
+              <th>Causa Raíz</th>
+              <th>What (Qué)</th>
+              <th>Who (Quién)</th>
+              <th>Where (Dónde)</th>
+              <th>When (Cuándo)</th>
+              <th>Why (Por qué)</th>
+              <th>How (Cómo)</th>
+              <th>How Much (Costo)</th>
+              <th>Evidencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                No hay planes 5W2H registrados para esta acción.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Login -->
+  <div id="modal-login" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="this.closest('.modal').classList.remove('active')">&times;</button>
+      <div class="modal-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </div>
+      <h2>Acceso Gerencial</h2>
+      <p>Ingrese sus credenciales</p>
+      <form>
+        <div class="form-group">
+          <label>DNI</label>
+          <input type="text" placeholder="Ingrese DNI">
+        </div>
+        <div class="form-group">
+          <label>CONTRASEÑA</label>
+          <input type="password" placeholder="••••••">
+        </div>
+        <button type="button" class="btn btn-primary btn-block">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Navegación
+    function showView(viewName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('view-' + viewName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Gráfico de indicadores
+    const ctx = document.getElementById('chart-indicadores').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['E', 'Q', 'D', 'S', 'C', 'P', 'M'],
+        datasets: [{
+          data: [100, 80, 71, 67, 39, 34, 20],
+          backgroundColor: ['#38a169', '#38a169', '#d69e2e', '#d69e2e', '#3182ce', '#3182ce', '#e53e3e'],
+          borderRadius: 4,
+          barThickness: 30
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, max: 100, grid: { display: false }, ticks: { callback: v => v + '%' } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Toggle indicadores
+    document.querySelectorAll('.indicador-chip').forEach(chip => {
+      chip.addEventListener('click', () => chip.classList.toggle('selected'));
+    });
+  </script>
+</body>
+</html>
