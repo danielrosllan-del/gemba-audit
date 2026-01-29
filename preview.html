@@ -509,6 +509,28 @@
     .matriz-cell.danger { background: var(--danger-bg); color: var(--danger-color); }
     .matriz-cell.neutral { background: var(--bg-tertiary); color: var(--text-muted); }
 
+    /* Gerencia extra */
+    .gerencia-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .gerencia-card {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .gerencia-card .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
     @media (max-width: 1200px) {
       .dashboard-grid { grid-template-columns: repeat(6, 1fr); }
       .kpi-card { grid-column: span 6; }
@@ -524,6 +546,7 @@
       .kpi-card, .chart-card, .responsables-card, .area-card { grid-column: span 1; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full-width, .form-group.half-width { grid-column: span 1; }
+      .gerencia-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -538,7 +561,7 @@
         </svg>
       </div>
       <div class="header-title">
-        <h1>Gestión de Reuniones</h1>
+        <h1>Gesti&oacute;n de Reuniones</h1>
         <span class="subtitle">Seguimiento de acciones</span>
       </div>
     </div>
@@ -547,727 +570,681 @@
       <button class="nav-btn" onclick="showView('registro')">REGISTRO</button>
       <button class="nav-btn" onclick="showView('seguimiento')">SEGUIMIENTO</button>
       <button class="nav-btn" onclick="showView('gerencia')">GERENCIA</button>
-      <button class="nav-btn" onclick="showView('analisis')">ANÁLISIS</button>
+      <button class="nav-btn" onclick="showView('analisis')">AN&Aacute;LISIS</button>
     </nav>
   </header>
 
   <main class="main-content">
     <!-- DASHBOARD VIEW -->
     <section id="view-dashboard" class="view active">
-      <div class="filters-bar">
-        <div class="filter-group">
-          <label>PLANTA</label>
-          <select><option>Todas</option><option>Planta Lima</option><option>Planta Arequipa</option></select>
-        </div>
-        <div class="filter-group">
-          <label>GERENCIA</label>
-          <select><option>Todas</option><option>Gerencia Operaciones</option></select>
-        </div>
-        <div class="filter-group">
-          <label>AREA</label>
-          <select><option>Todos</option><option>Producción</option><option>Calidad</option></select>
-        </div>
-        <div class="filter-group">
-          <label>TIPO REUNIÓN</label>
-          <select><option>Todas</option><option>Diaria</option><option>Semanal</option></select>
-        </div>
-        <button class="btn-limpiar">Limpiar</button>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- KPI Principal -->
-        <div class="card kpi-card">
-          <div class="card-header">
-            <span class="card-title">% CUMPLIMIENTO</span>
-          </div>
-          <div class="kpi-main">
-            <div class="kpi-value">35%</div>
-          </div>
-          <div class="kpi-bar">
-            <div class="kpi-bar-fill" style="width: 35%"></div>
-          </div>
-          <div class="kpi-stats">
-            <div class="kpi-stat">
-              <span class="kpi-stat-value total">164</span>
-              <span class="kpi-stat-label">Total</span>
-            </div>
-            <div class="kpi-stat">
-              <span class="kpi-stat-value ok">36</span>
-              <span class="kpi-stat-label">OK</span>
-            </div>
-            <div class="kpi-stat">
-              <span class="kpi-stat-value proceso">60</span>
-              <span class="kpi-stat-label">En proc</span>
-            </div>
-            <div class="kpi-stat">
-              <span class="kpi-stat-value noprog">0</span>
-              <span class="kpi-stat-label">NoP</span>
-            </div>
-            <div class="kpi-stat">
-              <span class="kpi-stat-value retrasado">68</span>
-              <span class="kpi-stat-label">Retr</span>
-            </div>
-          </div>
-          <div class="kpi-meta">Meta: 95%</div>
-        </div>
-
-        <!-- Gráfico Indicadores -->
-        <div class="card chart-card">
-          <div class="card-header">
-            <span class="card-title">% CUMPLIMIENTO POR INDICADOR</span>
-          </div>
-          <div class="chart-container">
-            <canvas id="chart-indicadores"></canvas>
-          </div>
-        </div>
-
-        <!-- Tabla Responsables -->
-        <div class="card responsables-card">
-          <div class="card-header">
-            <span class="card-title">% POR RESPONSABLE</span>
-            <div class="meta-indicators">META CUMP: 95% | META AVAN: 75%</div>
-          </div>
-          <div class="responsables-header">
-            <span>Responsable</span>
-            <span>Total</span>
-            <span>OK</span>
-            <span>En proc</span>
-            <span>No Prog</span>
-            <span>Retr</span>
-            <span>% Cump.</span>
-            <span>% Avance</span>
-          </div>
-          <div class="responsables-list">
-            <div class="responsable-row">
-              <span class="responsable-name">Leon Ochoa Usbaldo Alexander</span>
-              <span class="responsable-stat">8</span>
-              <span class="responsable-stat ok">5</span>
-              <span class="responsable-stat proceso">3</span>
-              <span class="responsable-stat noprog">0</span>
-              <span class="responsable-stat retrasado">0</span>
-              <span><span class="badge badge-success">100%</span></span>
-              <span><span class="badge badge-warning">63%</span></span>
-            </div>
-            <div class="responsable-row">
-              <span class="responsable-name">Varillas Villalobos Carlos Paulino</span>
-              <span class="responsable-stat">4</span>
-              <span class="responsable-stat ok">4</span>
-              <span class="responsable-stat proceso">0</span>
-              <span class="responsable-stat noprog">0</span>
-              <span class="responsable-stat retrasado">0</span>
-              <span><span class="badge badge-success">100%</span></span>
-              <span><span class="badge badge-success">100%</span></span>
-            </div>
-            <div class="responsable-row">
-              <span class="responsable-name">Ordoñez Campos Jazmin</span>
-              <span class="responsable-stat">2</span>
-              <span class="responsable-stat ok">1</span>
-              <span class="responsable-stat proceso">1</span>
-              <span class="responsable-stat noprog">0</span>
-              <span class="responsable-stat retrasado">0</span>
-              <span><span class="badge badge-success">100%</span></span>
-              <span><span class="badge badge-warning">50%</span></span>
-            </div>
-            <div class="responsable-row">
-              <span class="responsable-name">Castañeda Serrano Johann Vladimir</span>
-              <span class="responsable-stat">3</span>
-              <span class="responsable-stat ok">1</span>
-              <span class="responsable-stat proceso">2</span>
-              <span class="responsable-stat noprog">0</span>
-              <span class="responsable-stat retrasado">0</span>
-              <span><span class="badge badge-success">100%</span></span>
-              <span><span class="badge badge-danger">33%</span></span>
-            </div>
-            <div class="responsable-row">
-              <span class="responsable-name">Rosales Samillán Daniel Dennis</span>
-              <span class="responsable-stat">19</span>
-              <span class="responsable-stat ok">9</span>
-              <span class="responsable-stat proceso">9</span>
-              <span class="responsable-stat noprog">0</span>
-              <span class="responsable-stat retrasado">1</span>
-              <span><span class="badge badge-success">90%</span></span>
-              <span><span class="badge badge-warning">47%</span></span>
-            </div>
-            <div class="responsable-row">
-              <span class="responsable-name">Carranza Uriarte Juan Carlos</span>
-              <span class="responsable-stat">17</span>
-              <span class="responsable-stat ok">6</span>
-              <span class="responsable-stat proceso">4</span>
-              <span class="responsable-stat noprog">0</span>
-              <span class="responsable-stat retrasado">7</span>
-              <span><span class="badge badge-warning">46%</span></span>
-              <span><span class="badge badge-danger">35%</span></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráfico por Área -->
-        <div class="card area-card">
-          <div class="card-header">
-            <span class="card-title">% CUMPLIMIENTO POR ÁREA</span>
-          </div>
-          <div class="bars-container">
-            <div class="bar-item">
-              <span class="bar-label">Personas & Organización</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #38a169;"><span>100%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Excelencia Operacional</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 91%; background: #38a169;"><span>91%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Sin Asignar</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #d69e2e;"><span>50%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Operaciones Logísticas</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 46%; background: #d69e2e;"><span>46%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">SHE</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 33%; background: #3182ce;"><span>33%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Conversión</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 31%; background: #3182ce;"><span>31%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Mantenimiento</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 27%; background: #e53e3e;"><span>27%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Fabricación</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 11%; background: #e53e3e;"><span>11%</span></div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráfico por Sector -->
-        <div class="card area-card">
-          <div class="card-header">
-            <span class="card-title">% CUMPLIMIENTO POR SECTOR</span>
-          </div>
-          <div class="bars-container">
-            <div class="bar-item">
-              <span class="bar-label">Almacén de Repuestos</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #38a169;"><span>100%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Personas & Organización</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #38a169;"><span>100%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Excelencia Operacional</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 91%; background: #38a169;"><span>91%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Sin Asignar</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #d69e2e;"><span>50%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">PP1</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #d69e2e;"><span>50%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">L110</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 40%; background: #3182ce;"><span>40%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">Almacén de Producto Terminado</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 33%; background: #3182ce;"><span>33%</span></div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">SHE</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 33%; background: #3182ce;"><span>33%</span></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="filters-bar" id="dashboard-filters"></div>
+      <div class="dashboard-grid" id="dashboard-grid"></div>
     </section>
 
     <!-- REGISTRO VIEW -->
     <section id="view-registro" class="view">
-      <div class="form-container">
-        <div class="form-header">
-          <div class="form-header-left">
-            <div class="form-header-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="2">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14,2 14,8 20,8"/>
-              </svg>
-            </div>
-            <div>
-              <h2>Registro Masivo</h2>
-              <p>Cargar múltiples acciones principales</p>
-            </div>
-          </div>
-          <div class="form-header-actions">
-            <button class="btn btn-outline">Plantilla Maestra</button>
-            <button class="btn btn-primary">Subir Excel</button>
-          </div>
-        </div>
-
-        <form>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>FECHA REGISTRO <span class="required">*</span></label>
-              <input type="date" value="2026-01-29">
-            </div>
-            <div class="form-group">
-              <label>PLANTA <span class="required">*</span></label>
-              <select><option>Seleccione Planta</option><option>Planta Lima</option></select>
-            </div>
-            <div class="form-group">
-              <label>DONDE <span class="required">*</span></label>
-              <input type="text" placeholder="Area - Sector o Lugar...">
-            </div>
-            <div class="form-group">
-              <label>TIPO REUNIÓN <span class="required">*</span></label>
-              <select><option>Seleccione</option><option>Diaria</option><option>Semanal</option></select>
-            </div>
-            <div class="form-group">
-              <label>HERRAMIENTA <span class="required">*</span></label>
-              <select><option>Seleccione</option><option>ACR</option><option>ACR - 5W2H</option></select>
-            </div>
-            <div class="form-group">
-              <label>REPORTADO POR <span class="required">*</span></label>
-              <input type="text" placeholder="...">
-            </div>
-            <div class="form-group">
-              <label>VERIFICADOR <span class="required">*</span></label>
-              <input type="text" placeholder="...">
-            </div>
-            <div class="form-group"></div>
-            <div class="form-group"></div>
-            <div class="form-group full-width">
-              <label>MOTIVO</label>
-              <textarea placeholder="Describa el motivo..."></textarea>
-            </div>
-            <div class="form-group full-width">
-              <label>PLAN <span class="required">*</span></label>
-              <textarea placeholder="Describa el plan de acción..."></textarea>
-            </div>
-            <div class="form-group full-width">
-              <label>INDICADOR(ES) <span class="required">*</span></label>
-              <div class="indicadores-group">
-                <button type="button" class="indicador-chip selected">P</button>
-                <button type="button" class="indicador-chip">Q</button>
-                <button type="button" class="indicador-chip">C</button>
-                <button type="button" class="indicador-chip selected">D</button>
-                <button type="button" class="indicador-chip">S</button>
-                <button type="button" class="indicador-chip">M</button>
-                <button type="button" class="indicador-chip">E</button>
-              </div>
-            </div>
-            <div class="form-group half-width">
-              <label>RESPONSABLES <span class="required">*</span></label>
-              <input type="text" placeholder="...">
-            </div>
-            <div class="form-group">
-              <label>EMAIL</label>
-              <input type="email" placeholder="correo@ejemplo.com">
-            </div>
-            <div class="form-group">
-              <label>FECHA COMPROMISO</label>
-              <input type="date" value="2026-01-29">
-            </div>
-            <div class="form-group full-width">
-              <label>COMENTARIOS</label>
-              <textarea placeholder="Comentarios adicionales..."></textarea>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="button" class="btn btn-secondary">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-          </div>
-        </form>
-      </div>
+      <div class="form-container" id="registro-form"></div>
     </section>
 
     <!-- SEGUIMIENTO VIEW -->
     <section id="view-seguimiento" class="view">
-      <div style="text-align: center; margin-bottom: 16px;">
-        <span style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">VISTA SEGUIMIENTO (RDG OCULTA)</span>
-      </div>
-      <div class="filters-bar">
-        <div class="filter-group">
-          <label>PLANTA</label>
-          <select><option>Todas</option></select>
-        </div>
-        <div class="filter-group">
-          <label>ÁREA</label>
-          <select><option>Todas</option></select>
-        </div>
-        <div class="filter-group">
-          <label>SECTOR</label>
-          <select><option>Todos</option></select>
-        </div>
-        <div class="filter-group">
-          <label>FECHA REG.</label>
-          <input type="date" placeholder="dd/mm/aaaa">
-        </div>
-        <div class="filter-group">
-          <label>TIPO</label>
-          <select><option>Todas</option></select>
-        </div>
-      </div>
-      <div class="filters-bar" style="margin-top: -16px;">
-        <div class="filter-group">
-          <label>PILAR TPM</label>
-          <select><option>Todos</option></select>
-        </div>
-        <div class="filter-group">
-          <label>ESTADO</label>
-          <select><option>Filtrar Estados...</option></select>
-        </div>
-        <div class="filter-group">
-          <label>REPORTADO POR</label>
-          <input type="text" placeholder="...">
-        </div>
-        <div class="filter-group">
-          <label>RESP.</label>
-          <input type="text" placeholder="...">
-        </div>
-        <div class="filter-group">
-          <label>BUSCAR</label>
-          <input type="text" placeholder="...">
-        </div>
-      </div>
-
-      <div class="table-container">
-        <div class="table-header">
-          <div></div>
-          <div class="table-stats">
-            <div class="table-stat"><span class="table-stat-value" style="color: var(--primary-color);">108</span><span class="table-stat-label">TOTAL</span></div>
-            <div class="table-stat"><span class="table-stat-value" style="color: var(--success-color);">29</span><span class="table-stat-label">OK</span></div>
-            <div class="table-stat"><span class="table-stat-value" style="color: var(--info-color);">32</span><span class="table-stat-label">EN PROC</span></div>
-            <div class="table-stat"><span class="table-stat-value" style="color: var(--text-muted);">0</span><span class="table-stat-label">NO PROG</span></div>
-            <div class="table-stat"><span class="table-stat-value" style="color: var(--danger-color);">47</span><span class="table-stat-label">ATR</span></div>
-            <div class="table-stat"><span class="table-stat-value" style="color: var(--secondary-color);">27%</span><span class="table-stat-label">% CUMP</span></div>
-          </div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ESTADO</th>
-              <th>HERRAMIENTA</th>
-              <th>PILAR TPM</th>
-              <th>IND.</th>
-              <th>MOTIVO</th>
-              <th>RESPONSABLE</th>
-              <th>F. REGISTRO</th>
-              <th>FECHA COMP.</th>
-              <th>ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="status-badge status-concluido">Concluido</span></td>
-              <td>ACR<br><span class="herramienta-badge" style="display:none;"></span></td>
-              <td>-</td>
-              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
-              <td class="motivo-cell">
-                <div class="motivo-title">Demora de atención por Unidades en Simult...</div>
-                <div class="motivo-subtitle">Elaborar ACR</div>
-              </td>
-              <td>Leon Ochoa Usbaldo Alexander</td>
-              <td>01-Jul-22</td>
-              <td>09-Jul-22</td>
-              <td><button class="action-btn">📄 Ver</button></td>
-            </tr>
-            <tr>
-              <td><span class="status-badge status-retrasado">Retrasado</span></td>
-              <td>ACR - 5W2H<br><span class="herramienta-badge">ACR-CÑ-APT-001</span></td>
-              <td>-</td>
-              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
-              <td class="motivo-cell">
-                <div class="motivo-title">[Causa Raíz] Porque no se balancea las salid...</div>
-                <div class="motivo-subtitle">[What] Balancear los envíos de unidades entre plantas...</div>
-              </td>
-              <td></td>
-              <td>09-Ene-26</td>
-              <td>20-Sep-22</td>
-              <td><button class="action-btn">📄 Ver</button></td>
-            </tr>
-            <tr>
-              <td><span class="status-badge status-concluido">Concluido</span></td>
-              <td>ACR - 5W2H<br><span class="herramienta-badge">ACR-CÑ-APT-001</span></td>
-              <td>-</td>
-              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
-              <td class="motivo-cell">
-                <div class="motivo-title">[Causa Raíz] Porque no todas las unidades c...</div>
-                <div class="motivo-subtitle">[What] Instalar GPS a todas las unidades</div>
-              </td>
-              <td></td>
-              <td>09-Ene-26</td>
-              <td>20-Sep-22</td>
-              <td><button class="action-btn">📄 Ver</button></td>
-            </tr>
-            <tr>
-              <td><span class="status-badge status-concluido">Concluido</span></td>
-              <td>ACR - 5W2H<br><span class="herramienta-badge">ACR-CÑ-APT-001</span></td>
-              <td>-</td>
-              <td><a class="indicador-link">P</a>, <a class="indicador-link">D</a></td>
-              <td class="motivo-cell">
-                <div class="motivo-title">[Causa Raíz] Porque la programación no se ...</div>
-                <div class="motivo-subtitle">[What] Programar con 1 día de anticipación los traslad...</div>
-              </td>
-              <td></td>
-              <td>09-Ene-26</td>
-              <td>20-Sep-22</td>
-              <td><button class="action-btn">📄 Ver</button></td>
-            </tr>
-            <tr>
-              <td><span class="status-badge status-concluido">Concluido</span></td>
-              <td>Plan de acción<br></td>
-              <td>Coordinación TPM</td>
-              <td><a class="indicador-link">P</a></td>
-              <td class="motivo-cell">
-                <div class="motivo-title">3.2.2) Si el progreso del Máster Plan, lo sigu...</div>
-                <div class="motivo-subtitle">Se implementará el indicando de % Adhesión al masterpl...</div>
-              </td>
-              <td>Rosales Samillán Daniel Dennis</td>
-              <td>08-Dic-25</td>
-              <td>20-Ago-25</td>
-              <td><button class="action-btn">📄 Ver</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-container" id="seguimiento-table"></div>
     </section>
 
     <!-- GERENCIA VIEW -->
     <section id="view-gerencia" class="view">
-      <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
-        <div style="text-align: center; background: white; padding: 48px; border-radius: 12px; max-width: 400px; box-shadow: var(--shadow-md);">
-          <div style="margin-bottom: 24px;">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="1.5">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
-              <circle cx="12" cy="16" r="1"/>
-            </svg>
-          </div>
-          <h2 style="font-size: 24px; color: var(--primary-color); margin-bottom: 12px;">Acceso Gerencial</h2>
-          <p style="color: var(--text-muted); margin-bottom: 24px;">Esta sección requiere autenticación para acceder a funciones avanzadas de gestión.</p>
-          <button class="btn btn-primary" style="padding: 14px 32px; font-size: 16px;" onclick="document.getElementById('modal-login').classList.add('active')">Iniciar Sesión</button>
-        </div>
-      </div>
+      <div id="gerencia-content"></div>
     </section>
 
     <!-- ANALISIS VIEW -->
     <section id="view-analisis" class="view">
-      <div class="filters-bar">
-        <div class="filter-group">
-          <label>PLANTA</label>
-          <select><option>Todas</option></select>
-        </div>
-        <div class="filter-group">
-          <label>GERENCIA</label>
-          <select><option>Todas</option></select>
-        </div>
-        <div class="filter-group">
-          <label>AREA</label>
-          <select><option>Todas</option></select>
-        </div>
-        <div class="filter-group">
-          <label>SECTOR</label>
-          <select><option>Todos</option></select>
-        </div>
-      </div>
-
-      <div class="matriz-container">
-        <div class="matriz-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
-          </svg>
-          Matriz de Herramientas (ACR, AIQ, AFP, CAPDO)
-        </div>
-        <table class="matriz-table">
-          <thead>
-            <tr>
-              <th>Metrica</th>
-              <th>+/-</th>
-              <th colspan="2">Conversión</th>
-              <th colspan="2">Fabricación</th>
-              <th colspan="2">Mantenimiento</th>
-              <th colspan="2">Operaciones Logísticas</th>
-              <th colspan="2" class="total-header">TOTAL</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th></th>
-              <th>% Cum</th>
-              <th>5W+2H</th>
-              <th>% Cum</th>
-              <th>5W+2H</th>
-              <th>% Cum</th>
-              <th>5W+2H</th>
-              <th>% Cum</th>
-              <th>5W+2H</th>
-              <th>% Cum</th>
-              <th>5W+2H</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="metric-name">ACR</td>
-              <td><button class="btn btn-outline" style="padding: 4px 8px;">+</button></td>
-              <td><span class="matriz-cell warning">50%</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell success">100%</span></td>
-              <td><span class="matriz-cell danger">0%</span></td>
-              <td><span class="matriz-cell danger">0%</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell warning">50%</span></td>
-              <td><span class="matriz-cell warning">67%</span></td>
-              <td><span class="matriz-cell danger">25%</span></td>
-              <td><span class="matriz-cell danger">27%</span></td>
-            </tr>
-            <tr>
-              <td class="metric-name">AIQ</td>
-              <td><button class="btn btn-outline" style="padding: 4px 8px;">+</button></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell warning">40%</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell warning">40%</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-            </tr>
-            <tr>
-              <td class="metric-name">AFP</td>
-              <td><button class="btn btn-outline" style="padding: 4px 8px;">+</button></td>
-              <td><span class="matriz-cell danger">0%</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell danger">0%</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-            </tr>
-            <tr>
-              <td class="metric-name">CAPDO</td>
-              <td><button class="btn btn-outline" style="padding: 4px 8px;"></button></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-              <td><span class="matriz-cell neutral">-</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="matriz-container">
-        <div class="matriz-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
-          </svg>
-          Matriz de Planes 5W2H
-          <span style="margin-left: auto; font-weight: 400; color: var(--text-muted); font-size: 13px;">Viendo: Falla en distribuir log</span>
-        </div>
-        <table class="matriz-table">
-          <thead>
-            <tr>
-              <th>Causa Raíz</th>
-              <th>What (Qué)</th>
-              <th>Who (Quién)</th>
-              <th>Where (Dónde)</th>
-              <th>When (Cuándo)</th>
-              <th>Why (Por qué)</th>
-              <th>How (Cómo)</th>
-              <th>How Much (Costo)</th>
-              <th>Evidencia</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                No hay planes 5W2H registrados para esta acción.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="analisis-content"></div>
     </section>
   </main>
 
-  <!-- Modal Login -->
-  <div id="modal-login" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="this.closest('.modal').classList.remove('active')">&times;</button>
-      <div class="modal-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="2">
-          <path d="M9 11l3 3L22 4"/>
-          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-        </svg>
-      </div>
-      <h2>Acceso Gerencial</h2>
-      <p>Ingrese sus credenciales</p>
-      <form>
-        <div class="form-group">
-          <label>DNI</label>
-          <input type="text" placeholder="Ingrese DNI">
-        </div>
-        <div class="form-group">
-          <label>CONTRASEÑA</label>
-          <input type="password" placeholder="••••••">
-        </div>
-        <button type="button" class="btn btn-primary btn-block">Ingresar</button>
-      </form>
+<script>
+// ============ EMBEDDED DATA ============
+const DATA = {"resumen": {"total": 164, "concluido": 36, "retrasado": 66, "en_proceso": 62, "pendiente": 128, "cumplimiento": 22.0}, "por_indicador": [{"indicador": "C", "total": 7, "concluido": 2, "retrasado": 5, "en_proceso": 0, "cumplimiento": 28.6}, {"indicador": "C, M", "total": 3, "concluido": 1, "retrasado": 1, "en_proceso": 1, "cumplimiento": 33.3}, {"indicador": "M", "total": 5, "concluido": 0, "retrasado": 2, "en_proceso": 3, "cumplimiento": 0.0}, {"indicador": "M, E", "total": 1, "concluido": 1, "retrasado": 0, "en_proceso": 0, "cumplimiento": 100.0}, {"indicador": "P", "total": 98, "concluido": 21, "retrasado": 48, "en_proceso": 29, "cumplimiento": 21.4}, {"indicador": "P, C", "total": 3, "concluido": 0, "retrasado": 2, "en_proceso": 1, "cumplimiento": 0.0}, {"indicador": "P, C, M", "total": 7, "concluido": 0, "retrasado": 2, "en_proceso": 5, "cumplimiento": 0.0}, {"indicador": "P, D", "total": 7, "concluido": 5, "retrasado": 2, "en_proceso": 0, "cumplimiento": 71.4}, {"indicador": "P, M", "total": 2, "concluido": 0, "retrasado": 2, "en_proceso": 0, "cumplimiento": 0.0}, {"indicador": "P, Q, C", "total": 3, "concluido": 2, "retrasado": 0, "en_proceso": 1, "cumplimiento": 66.7}, {"indicador": "P, Q, C, D, S, M, E", "total": 14, "concluido": 0, "retrasado": 0, "en_proceso": 14, "cumplimiento": 0.0}, {"indicador": "P, Q, C, M", "total": 1, "concluido": 0, "retrasado": 1, "en_proceso": 0, "cumplimiento": 0.0}, {"indicador": "P, Q, C, S", "total": 4, "concluido": 2, "retrasado": 0, "en_proceso": 2, "cumplimiento": 50.0}, {"indicador": "P, S, M", "total": 4, "concluido": 0, "retrasado": 0, "en_proceso": 4, "cumplimiento": 0.0}, {"indicador": "Q, C, M, E", "total": 1, "concluido": 0, "retrasado": 0, "en_proceso": 1, "cumplimiento": 0.0}, {"indicador": "S", "total": 4, "concluido": 2, "retrasado": 1, "en_proceso": 1, "cumplimiento": 50.0}], "por_responsable": [{"responsable": "Rosales Samillán Daniel Dennis", "total": 17, "concluido": 9, "retrasado": 1, "en_proceso": 7, "cumplimiento": 52.9}, {"responsable": "Carranza Uriarte Juan Carlos", "total": 15, "concluido": 5, "retrasado": 5, "en_proceso": 5, "cumplimiento": 33.3}, {"responsable": "Guillen Cartagena Ana Paola", "total": 9, "concluido": 0, "retrasado": 6, "en_proceso": 3, "cumplimiento": 0.0}, {"responsable": "Hilfreich Guzman Maria Fernanda", "total": 7, "concluido": 0, "retrasado": 5, "en_proceso": 2, "cumplimiento": 0.0}, {"responsable": "Leon Ochoa Usbaldo Alexander", "total": 7, "concluido": 5, "retrasado": 0, "en_proceso": 2, "cumplimiento": 71.4}, {"responsable": "Lazo Rojas Guillermo Gabriel", "total": 7, "concluido": 0, "retrasado": 1, "en_proceso": 6, "cumplimiento": 0.0}, {"responsable": "Sin Responsable", "total": 7, "concluido": 4, "retrasado": 3, "en_proceso": 0, "cumplimiento": 57.1}, {"responsable": "Bendezú Cahua Eduardo", "total": 6, "concluido": 2, "retrasado": 2, "en_proceso": 2, "cumplimiento": 33.3}, {"responsable": "Rodriguez Peralta Nolber Crecencio", "total": 6, "concluido": 0, "retrasado": 4, "en_proceso": 2, "cumplimiento": 0.0}, {"responsable": "Mendoza Vicerrel Christian Darwin", "total": 5, "concluido": 0, "retrasado": 5, "en_proceso": 0, "cumplimiento": 0.0}, {"responsable": "Sequeiros Cuba Jhon Piper", "total": 4, "concluido": 0, "retrasado": 2, "en_proceso": 2, "cumplimiento": 0.0}, {"responsable": "Flores Campos Ivanna Valentina", "total": 4, "concluido": 0, "retrasado": 2, "en_proceso": 2, "cumplimiento": 0.0}, {"responsable": "Figueroa Gomez Hector Armando", "total": 4, "concluido": 0, "retrasado": 3, "en_proceso": 1, "cumplimiento": 0.0}, {"responsable": "Tasayco Saravia Hector Martin", "total": 4, "concluido": 0, "retrasado": 2, "en_proceso": 2, "cumplimiento": 0.0}, {"responsable": "Alva Villena Cesar Alberto", "total": 4, "concluido": 1, "retrasado": 2, "en_proceso": 1, "cumplimiento": 25.0}, {"responsable": "Quispe Sanchez Jhony Enrique", "total": 3, "concluido": 0, "retrasado": 3, "en_proceso": 0, "cumplimiento": 0.0}, {"responsable": "Elias Darwin Dolores Mota", "total": 3, "concluido": 0, "retrasado": 0, "en_proceso": 3, "cumplimiento": 0.0}, {"responsable": "Bryan Alberto Rodriguez Vicente", "total": 3, "concluido": 1, "retrasado": 0, "en_proceso": 2, "cumplimiento": 33.3}, {"responsable": "Varillas Villalobos Carlos Paulino", "total": 3, "concluido": 3, "retrasado": 0, "en_proceso": 0, "cumplimiento": 100.0}, {"responsable": "Arias Ramirez Daniel Andres", "total": 3, "concluido": 0, "retrasado": 3, "en_proceso": 0, "cumplimiento": 0.0}], "por_area": [{"area": "Calidad", "total": 4, "concluido": 0, "retrasado": 2, "en_proceso": 2, "cumplimiento": 0.0}, {"area": "Control de Producción", "total": 9, "concluido": 0, "retrasado": 6, "en_proceso": 3, "cumplimiento": 0.0}, {"area": "Conversión", "total": 15, "concluido": 4, "retrasado": 9, "en_proceso": 2, "cumplimiento": 26.7}, {"area": "Excelencia Operacional", "total": 24, "concluido": 10, "retrasado": 1, "en_proceso": 13, "cumplimiento": 41.7}, {"area": "Fabricación", "total": 13, "concluido": 1, "retrasado": 9, "en_proceso": 3, "cumplimiento": 7.7}, {"area": "Gerencia", "total": 2, "concluido": 0, "retrasado": 2, "en_proceso": 0, "cumplimiento": 0.0}, {"area": "Mantenimiento", "total": 39, "concluido": 8, "retrasado": 22, "en_proceso": 9, "cumplimiento": 20.5}, {"area": "Operaciones Logísticas", "total": 17, "concluido": 6, "retrasado": 4, "en_proceso": 7, "cumplimiento": 35.3}, {"area": "Personas & Organización", "total": 5, "concluido": 0, "retrasado": 0, "en_proceso": 5, "cumplimiento": 0.0}, {"area": "SHE", "total": 9, "concluido": 1, "retrasado": 1, "en_proceso": 7, "cumplimiento": 11.1}, {"area": "Seguridad Física", "total": 2, "concluido": 0, "retrasado": 1, "en_proceso": 1, "cumplimiento": 0.0}, {"area": "Sin Área", "total": 25, "concluido": 6, "retrasado": 9, "en_proceso": 10, "cumplimiento": 24.0}], "por_sector": [{"sector": "Almacén de Producto Terminado", "total": 6, "concluido": 1, "retrasado": 2, "en_proceso": 3, "cumplimiento": 16.7}, {"sector": "Almacén de Repuestos", "total": 7, "concluido": 5, "retrasado": 0, "en_proceso": 2, "cumplimiento": 71.4}, {"sector": "Almacén de Semielaborados", "total": 4, "concluido": 0, "retrasado": 2, "en_proceso": 2, "cumplimiento": 0.0}, {"sector": "Calidad", "total": 4, "concluido": 0, "retrasado": 2, "en_proceso": 2, "cumplimiento": 0.0}, {"sector": "Control de Producción", "total": 9, "concluido": 0, "retrasado": 6, "en_proceso": 3, "cumplimiento": 0.0}, {"sector": "Efluentes", "total": 1, "concluido": 0, "retrasado": 0, "en_proceso": 1, "cumplimiento": 0.0}, {"sector": "Excelencia Operacional", "total": 24, "concluido": 10, "retrasado": 1, "en_proceso": 13, "cumplimiento": 41.7}, {"sector": "Gerencia", "total": 2, "concluido": 0, "retrasado": 2, "en_proceso": 0, "cumplimiento": 0.0}, {"sector": "I50", "total": 5, "concluido": 1, "retrasado": 4, "en_proceso": 0, "cumplimiento": 20.0}, {"sector": "L110", "total": 10, "concluido": 3, "retrasado": 5, "en_proceso": 2, "cumplimiento": 30.0}, {"sector": "MP1", "total": 10, "concluido": 0, "retrasado": 8, "en_proceso": 2, "cumplimiento": 0.0}, {"sector": "Mantenimiento conversión", "total": 17, "concluido": 3, "retrasado": 10, "en_proceso": 4, "cumplimiento": 17.6}, {"sector": "Mantenimiento fabricación", "total": 22, "concluido": 5, "retrasado": 12, "en_proceso": 5, "cumplimiento": 22.7}, {"sector": "PP1", "total": 2, "concluido": 1, "retrasado": 1, "en_proceso": 0, "cumplimiento": 50.0}, {"sector": "Personas & Organización", "total": 5, "concluido": 0, "retrasado": 0, "en_proceso": 5, "cumplimiento": 0.0}, {"sector": "SHE", "total": 9, "concluido": 1, "retrasado": 1, "en_proceso": 7, "cumplimiento": 11.1}, {"sector": "Seguridad Física", "total": 2, "concluido": 0, "retrasado": 1, "en_proceso": 1, "cumplimiento": 0.0}, {"sector": "Sin Sector", "total": 25, "concluido": 6, "retrasado": 9, "en_proceso": 10, "cumplimiento": 24.0}], "filtros": {"plantas": ["Cañete"], "tipos_reunion": ["CRICAS", "RDG", "RDL/RDS", "Reunión de Pilares"], "herramientas": ["ACR", "ACR - 5W2H", "AFP", "AIQ", "Comunicados", "Plan de acción"], "indicadores": ["C", "C, M", "M", "M, E", "P", "P, C", "P, C, M", "P, D", "P, M", "P, Q, C", "P, Q, C, D, S, M, E", "P, Q, C, M", "P, Q, C, S", "P, S, M", "Q, C, M, E", "S"], "pilares_tpm": ["5S", "Comite Ejecutivo", "Coordinación TPM", "EE", "MA", "ME", "MQ", "SC", "SHE"], "gerencias": ["Marketing", "Operaciones", "Personas & Organización", "Supply Chain"], "areas": ["Administrativo", "Calidad", "Confiabilidad", "Control de Producción", "Conversión", "Excelencia Operacional", "Fabricación", "Gerencia", "I&D", "Mantenimiento", "Operaciones Logísticas", "Personal Care", "Personas & Organización", "Proyectos", "Recuperadora", "SHE", "Seguridad Física", "Supply Chain"], "sectores": ["Administrativo", "Almacén BSF", "Almacén de Insumos", "Almacén de Materia Prima", "Almacén de PT", "Almacén de Producto Terminado", "Almacén de Repuestos", "Almacén de Semielaborados", "BEMA", "Calidad", "Calidad Conversión", "Calidad Fabricación", "Calidad Personal Care", "Calidad conversión", "Calidad fabricación", "Calidad personal care", "Confiabilidad", "Control de Producción", "Control de producción", "Conversión", "D20", "D30", "D50", "Distribución", "Efluentes", "Enfardado", "Excelencia Operacional", "Gerencia", "I10", "I30", "I40", "I50", "Infraestructura", "Ingeniero de Proceso", "Jefe Comercial", "L100", "L110", "L120", "L40", "L60", "L70", "L813", "L90", "MP1", "MP2", "MP3", "MP4", "Mantenimiento conversión", "Mantenimiento fabricación", "Mantenimiento personal care", "NA", "Operaciones Logísticas", "P40", "P50", "P60", "PA10", "PP", "PP1", "PP2", "PP3", "Personas & Organización", "Planta térmica", "Proyectos", "Rec. Arequipa", "Rec. Callao", "Rec. Chiclayo", "Rec. Huachipa", "S20", "S40", "S50", "S60", "S70", "SAT", "SAX", "SHE", "Seguridad Física", "T10"]}, "seguimiento": [{"id": 1765078998797.0, "fecha_registro": "2025-11-24", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "Falla en la valvula de seguridad del Yankee", "plan_accion": "Elaborar ACR - Falla en la valvula de seguridad del Yankee", "responsable": "Vargas Mauricio Juan Diego", "verificador": "Mendoza Vicerrel Christian Darwin", "fecha_programada": "2025-11-27", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765079102980.0, "fecha_registro": "2025-11-24", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Vargas Mauricio Juan Diego", "indicador": "P", "problema": "Falla en la junta rotativa", "plan_accion": "Elaborar ACR - Junta Rotativa", "responsable": "Vargas Mauricio Juan Diego", "verificador": "Mendoza Vicerrel Christian Darwin", "fecha_programada": "2025-12-05", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765079196488.0, "fecha_registro": "2025-12-01", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "Avería en Puente Grúa", "plan_accion": "Elaborar ACR por avería en puente grúa", "responsable": "Mendoza Vicerrel Christian Darwin", "verificador": "Guillen Cartagena Ana Paola", "fecha_programada": "2025-12-05", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765079315624.0, "fecha_registro": "2025-11-30", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Arce Vargas Fredy", "indicador": "P", "problema": "Falla en distribuir log", "plan_accion": "Elaborar ACR - Falla en distribuir log", "responsable": "Quispe Sanchez Jhony Enrique", "verificador": "Arias Ramirez Daniel Andres", "fecha_programada": "2025-12-04", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765079429647.0, "fecha_registro": "2025-11-30", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Varillas Villalobos Carlos Paulino", "indicador": "P", "problema": "Falla en el Aire Comprimido", "plan_accion": "Elaborar ACR - Falla en el aire comprimido", "responsable": "Bendezú Cahua Eduardo", "verificador": "Varillas Villalobos Carlos Paulino", "fecha_programada": "2025-12-11", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765079523058.0, "fecha_registro": "2025-11-30", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Arce Vargas Fredy", "indicador": "P", "problema": "Fuga en Válvula de arranque progresivo", "plan_accion": "Elaborar ACR por fuga en válvula de arranque progresivo", "responsable": "Quispe Sanchez Jhony Enrique", "verificador": "Arias Ramirez Daniel Andres", "fecha_programada": "2025-12-12", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765079619999.0, "fecha_registro": "2025-11-30", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Alva Villena Cesar Alberto", "indicador": "P", "problema": "Rotura de Pinzas por Tarimas Desalineadas", "plan_accion": "Elaborar ACR por Tarimas Desalineadas", "responsable": "Sequeiros Cuba Jhon Piper", "verificador": "Leon Ochoa Usbaldo Alexander", "fecha_programada": "2025-12-12", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765080214060.0, "fecha_registro": "2025-10-23", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "Croushing en los bordes de la bobina", "plan_accion": "Elaborar ACR", "responsable": "Galindo Luyo Roberto Edward", "verificador": "Guillen Cartagena Ana Paola", "fecha_programada": "2025-10-16", "estado": "Concluido", "comentarios": "Realizado por el GA", "pilar_tpm": "", "causa_raiz": ""}, {"id": 1765081740496.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] FALTA DE MANTENIMIENTO AL RODILLO SUCCIÓN", "plan_accion": "[What] MANTENIMIENTO DE RODILLO SUCCIÓN", "responsable": "Carranza Uriarte Juan Carlos", "verificador": "", "fecha_programada": "2025-10-01", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "FALTA DE MANTENIMIENTO AL RODILLO SUCCIÓN"}, {"id": 1765084724072.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] FALTA NUEVO DESARROLLO DE FIELTRO PARA USO DE RH CON MAYOR FRECUENCIA", "plan_accion": "[What] NUEVO DESARROLLO DE NUEVO PAÑO PARA USO DE RH", "responsable": "Galindo Luyo Roberto Edward", "verificador": "", "fecha_programada": "2025-11-01", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "FALTA NUEVO DESARROLLO DE FIELTRO PARA USO DE RH CON MAYOR FRECUENCIA"}, {"id": 1765085938138.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] FALTA DE INSPECCIÓN DEL SHELL DE RODILLO SUCCIÓN", "plan_accion": "[What] LIMPIEZA DE SHELL , CHECK LIST", "responsable": "Tomas Nolazco Luis Carlos", "verificador": "", "fecha_programada": "2025-11-01", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "FALTA DE INSPECCIÓN DEL SHELL DE RODILLO SUCCIÓN"}, {"id": 1765085938139.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] FALTA DE INSPECCIÓN DEL SHELL DE RODILLO SUCCIÓN", "plan_accion": "[What]  LIMPIEZA PARA ACONDICIONAMIENTO PAÑO A VELOCIDAD LENTA 50 m/min", "responsable": "Tomas Nolazco Luis Carlos", "verificador": "", "fecha_programada": "2025-11-15", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "FALTA DE INSPECCIÓN DEL SHELL DE RODILLO SUCCIÓN"}, {"id": 1765085938140.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] MODIFICACIÓN DEL SISTEMA DE VACIO", "plan_accion": "[What] RETIRO DE LÍNEA DE PICK UP", "responsable": "Bullon Galarza Fernando", "verificador": "", "fecha_programada": "2025-10-18", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "MODIFICACIÓN DEL SISTEMA DE VACIO"}, {"id": 1765085938141.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] MODIFICACIÓN DEL SISTEMA DE VACIO", "plan_accion": "[What] ASEGURAR CORRECTO FUNCIONAMIENTO DE BOMBA DE VACÍO", "responsable": "Mendoza Vicerrel Christian Darwin", "verificador": "", "fecha_programada": "2025-11-07", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "MODIFICACIÓN DEL SISTEMA DE VACIO"}, {"id": 1765085938142.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] MODIFICACIÓN DEL SISTEMA DE VACIO", "plan_accion": "[What] ASEGURAR CORRECTO FUNCIONAMIENTO DE BOMBA DE VACÍO", "responsable": "Mendoza Vicerrel Christian Darwin", "verificador": "", "fecha_programada": "2025-11-07", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "MODIFICACIÓN DEL SISTEMA DE VACIO"}, {"id": 1765085938143.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] MODIFICACIÓN DEL SISTEMA DE VACIO", "plan_accion": "[What] ASEGURAR CORRECTO FUNCIONAMIENTO DE BOMBA DE VACÍO", "responsable": "Mendoza Vicerrel Christian Darwin", "verificador": "", "fecha_programada": "2025-11-07", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "MODIFICACIÓN DEL SISTEMA DE VACIO"}, {"id": 1765085938144.0, "fecha_registro": "2025-12-07", "planta": "Cañete", "tipo_reunion": "RDL/RDS", "herramienta": "ACR - 5W2H", "reportado_por": "Rodriguez Peralta Nolber Crecencio", "indicador": "P", "problema": "[Causa Raíz] MODIFICACIÓN DEL SISTEMA DE VACIO", "plan_accion": "[What] ASEGURAR CORRECTO FUNCIONAMIENTO DE BOMBA DE VACÍO", "responsable": "Bullon Galarza Fernando", "verificador": "", "fecha_programada": "2025-10-15", "estado": "Retrasado", "comentarios": "", "pilar_tpm": "", "causa_raiz": "MODIFICACIÓN DEL SISTEMA DE VACIO"}, {"id": 1765219083544.0, "fecha_registro": "2025-12-08", "planta": "Cañete", "tipo_reunion": "CRICAS", "herramienta": "Plan de acción", "reportado_por": "Rosales Samillán Daniel Dennis", "indicador": "P", "problema": "1.6.2) El Área de CD, está llevando una coherencia Metodológica entre sus \n\nObjetivos y las Actividades", "plan_accion": "Simulación de presentación integrada entre pilares e impactado al KPI\n\n1) Armar el modelo,", "responsable": "Elias Darwin Dolores Mota", "verificador": "Rosales Samillán Daniel Dennis", "fecha_programada": "2026-02-20", "estado": "En Proceso", "comentarios": "Cada en sus pilares debe presetnar un personal operativo desde indicadores del negocio (KPI) y como se integran los diferentes pilares.", "pilar_tpm": "Comite Ejecutivo", "causa_raiz": ""}, {"id": 1765219083545.0, "fecha_registro": "2025-12-08", "planta": "Cañete", "tipo_reunion": "CRICAS", "herramienta": "Plan de acción", "reportado_por": "Rosales Samillán Daniel Dennis", "indicador": "P", "problema": "En Planta Cañete. el Modelo de Trabajo del Pilar de Mantenimiento\nde la Calidad es el que mejor representa la Metodología.", "plan_accion": "Identificaron sus perdidas, analizaron y eliminaron perdidas. Mostraron antes y despues. \n\n1) 1 maqueta linea (LDA, FC, Puntos Q y S, amago. (ejemplo para los demás) - Lo hace el GA \n2) Carton para presentar la metodología de un pilar aplicada en la Linea (ejemplo para los demás) - Cada Pilar\n", "responsable": "Rodriguez Peralta Nolber Crecencio", "verificador": "Rosales Samillán Daniel Dennis", "fecha_programada": "2025-09-24", "estado": "Retrasado", "comentarios": "Presentaron árbol de pérdidas, planes de acción ante mayores pérdidas de calidad, antes y después aplicando la metodología. Uso de herramientas de análisis y cómo fueron los resultados, hubieron maquetas que representó los puntos Q.", "pilar_tpm": "Comite Ejecutivo", "causa_raiz": ""}, {"id": 1765219083546.0, "fecha_registro": "2025-12-08", "planta": "Cañete", "tipo_reunion": "CRICAS", "herramienta": "Plan de acción", "reportado_por": "Rosales Samillán Daniel Dennis", "indicador": "P", "problema": "En Planta Cañete. el Modelo de Trabajo del Pilar de Mantenimiento\nde la Calidad es el que mejor representa la Metodología.", "plan_accion": "Identificaron sus perdidas, analizaron y eliminaron perdidas. Mostraron antes y despues. \n\n1) 1 maqueta linea (LDA, FC, Puntos Q y S, amago. (ejemplo para los demás) - Lo hace el GA \n2) Carton para presentar la metodología de un pilar aplicada en la Linea (ejemplo para los demás) - Cada Pilar\n", "responsable": "Hilfreich Guzman Maria Fernanda", "verificador": "Rosales Samillán Daniel Dennis", "fecha_programada": "2025-12-10", "estado": "Retrasado", "comentarios": "Presentaron árbol de pérdidas, planes de acción ante mayores pérdidas de calidad, antes y después aplicando la metodología. Uso de herramientas de análisis y cómo fueron los resultados, hubieron maquetas que representó los puntos Q.", "pilar_tpm": "Comite Ejecutivo", "causa_raiz": ""}], "personal_hierarchy": {"Arequipa": {"Operaciones": {"Administrativo": ["Administrativo"], "Calidad": ["Calidad"], "Control de Producción": ["Control de Producción", "Control de producción"], "Conversión": ["Ingeniero de Proceso", "L100", "L813", "NA"], "Excelencia Operacional": ["Excelencia Operacional"], "Fabricación": ["MP2", "Planta térmica"], "Gerencia": ["Gerencia"], "Mantenimiento": ["Mantenimiento conversión", "Mantenimiento fabricación", "Planta térmica"], "Operaciones Logísticas": ["Operaciones Logísticas"], "Proyectos": ["NA"], "SHE": ["SHE"]}, "Personas & Organización": {"Administrativo": ["Administrativo", "Jefe Comercial"], "Personas & Organización": ["NA", "Personas & Organización"]}, "Supply Chain": {"Operaciones Logísticas": ["Almacén de Insumos", "Almacén de Materia Prima", "Almacén de PT", "Almacén de Repuestos", "Almacén de Semielaborados", "Distribución", "Operaciones Logísticas", "Rec. Arequipa"], "Supply Chain": ["Almacén de Producto Terminado", "Almacén de Repuestos"]}}, "Cañete": {"Operaciones": {"Calidad": ["Calidad", "Calidad Conversión", "Calidad Fabricación", "Calidad conversión", "Calidad fabricación"], "Confiabilidad": ["Confiabilidad", "Infraestructura"], "Control de Producción": ["Control de Producción", "NA"], "Conversión": ["BEMA", "Conversión", "Enfardado", "I50", "L110", "L120", "L40", "NA"], "Excelencia Operacional": ["Excelencia Operacional"], "Fabricación": ["Efluentes", "MP1", "PP1", "Planta térmica"], "Gerencia": ["Gerencia"], "Mantenimiento": ["Mantenimiento conversión", "Mantenimiento fabricación"], "SHE": ["NA", "SHE"], "Seguridad Física": ["NA", "Seguridad Física"]}, "Personas & Organización": {"Personas & Organización": ["Personas & Organización"]}, "Supply Chain": {"Operaciones Logísticas": ["Almacén de Insumos", "Almacén de Materia Prima", "Almacén de PT", "Almacén de Producto Terminado", "Almacén de Repuestos", "Almacén de Semielaborados"]}}, "Lima": {"Marketing": {"Administrativo": ["NA"]}, "Operaciones": {"Calidad": ["Calidad Conversión", "Calidad Fabricación", "Calidad Personal Care", "Calidad conversión", "Calidad fabricación", "Calidad personal care", "NA"], "Confiabilidad": ["Confiabilidad", "Infraestructura"], "Control de Producción": ["Control de Producción", "Control de producción"], "Conversión": ["Conversión", "D20", "D30", "D50", "Enfardado", "I10", "I30", "I40", "L60", "L70", "L90", "Mantenimiento conversión", "NA", "PA10", "S20", "S40", "S50", "S60", "S70"], "Excelencia Operacional": ["NA"], "Fabricación": ["MP2", "MP3", "MP4", "NA", "PP", "PP2", "PP3", "SAX"], "Gerencia": ["NA"], "I&D": ["NA"], "Mantenimiento": ["Mantenimiento conversión", "Mantenimiento fabricación", "Mantenimiento personal care"], "Operaciones Logísticas": ["Almacén de PT"], "Personal Care": ["Control de producción", "Enfardado", "NA", "P40", "P50", "P60", "T10"], "Proyectos": ["NA"], "SHE": ["NA"], "Seguridad Física": ["NA"]}, "Personas & Organización": {"Personas & Organización": ["NA", "Personas & Organización"]}, "Supply Chain": {"Administrativo": ["Almacén BSF", "Distribución", "NA", "SAT"], "Gerencia": ["NA"], "Operaciones Logísticas": ["Almacén BSF", "Almacén de Insumos", "Almacén de PT", "Almacén de Repuestos", "Almacén de Semielaborados", "NA"], "Proyectos": ["NA", "Proyectos"], "Recuperadora": ["Rec. Callao", "Rec. Chiclayo", "Rec. Huachipa"], "Supply Chain": ["Distribución", "NA"]}}}};
+
+// ============ NAVIGATION ============
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const map = {dashboard:0, registro:1, seguimiento:2, gerencia:3, analisis:4};
+  if (map[name] !== undefined) btns[map[name]].classList.add('active');
+}
+
+// ============ HELPERS ============
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function truncate(s, n) {
+  if (!s) return '';
+  return s.length > n ? s.substring(0, n) + '...' : s;
+}
+function badgeClass(pct) {
+  if (pct >= 80) return 'success';
+  if (pct >= 50) return 'warning';
+  return 'danger';
+}
+function barColor(pct) {
+  if (pct >= 80) return 'var(--success-color)';
+  if (pct >= 50) return 'var(--warning-color)';
+  return 'var(--danger-color)';
+}
+function statusClass(estado) {
+  if (!estado) return '';
+  const e = estado.toLowerCase();
+  if (e === 'concluido') return 'status-concluido';
+  if (e.includes('proceso')) return 'status-proceso';
+  if (e === 'retrasado') return 'status-retrasado';
+  return '';
+}
+
+// ============ AGGREGATE INDICATORS ============
+function aggregateIndicators() {
+  const letters = ['P','Q','C','D','S','M','E'];
+  const agg = {};
+  letters.forEach(l => { agg[l] = {total:0, concluido:0, retrasado:0, en_proceso:0}; });
+  DATA.por_indicador.forEach(row => {
+    const parts = row.indicador.split(',').map(s => s.trim());
+    parts.forEach(letter => {
+      if (agg[letter]) {
+        agg[letter].total += row.total;
+        agg[letter].concluido += row.concluido;
+        agg[letter].retrasado += row.retrasado;
+        agg[letter].en_proceso += row.en_proceso;
+      }
+    });
+  });
+  return letters.map(l => ({
+    indicador: l,
+    total: agg[l].total,
+    concluido: agg[l].concluido,
+    retrasado: agg[l].retrasado,
+    en_proceso: agg[l].en_proceso,
+    cumplimiento: agg[l].total > 0 ? Math.round((agg[l].concluido / agg[l].total) * 1000) / 10 : 0
+  }));
+}
+
+// ============ BUILD DASHBOARD ============
+function buildDashboard() {
+  const f = DATA.filtros;
+  const filtersHTML = `
+    <div class="filter-group">
+      <label>PLANTA</label>
+      <select><option>Todas</option>${f.plantas.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
     </div>
-  </div>
+    <div class="filter-group">
+      <label>GERENCIA</label>
+      <select><option>Todas</option>${f.gerencias.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+    </div>
+    <div class="filter-group">
+      <label>AREA</label>
+      <select><option>Todos</option>${f.areas.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+    </div>
+    <div class="filter-group">
+      <label>TIPO REUNI&Oacute;N</label>
+      <select><option>Todas</option>${f.tipos_reunion.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+    </div>
+    <button class="btn-limpiar" onclick="location.reload()">Limpiar</button>
+  `;
+  document.getElementById('dashboard-filters').innerHTML = filtersHTML;
 
-  <script>
-    // Navegación
-    function showView(viewName) {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('view-' + viewName).classList.add('active');
-      event.target.classList.add('active');
-    }
+  const r = DATA.resumen;
+  const indAgg = aggregateIndicators();
 
-    // Gráfico de indicadores
-    const ctx = document.getElementById('chart-indicadores').getContext('2d');
+  // Responsables rows
+  let respRows = '';
+  DATA.por_responsable.forEach(p => {
+    const noprog = Math.max(0, p.total - p.concluido - p.en_proceso - p.retrasado);
+    const avance = p.total > 0 ? Math.round(((p.concluido + p.en_proceso * 0.5) / p.total) * 1000) / 10 : 0;
+    const bc = badgeClass(p.cumplimiento);
+    const ba = badgeClass(avance);
+    respRows += `
+      <div class="responsable-row">
+        <div class="responsable-name">${esc(p.responsable)}</div>
+        <div class="responsable-stat">${p.total}</div>
+        <div class="responsable-stat ok">${p.concluido}</div>
+        <div class="responsable-stat proceso">${p.en_proceso}</div>
+        <div class="responsable-stat noprog">${noprog}</div>
+        <div class="responsable-stat retrasado">${p.retrasado}</div>
+        <div class="responsable-stat"><span class="badge badge-${bc}">${p.cumplimiento}%</span></div>
+        <div class="responsable-stat"><span class="badge badge-${ba}">${avance}%</span></div>
+      </div>`;
+  });
+
+  // Area bars
+  let areaBars = '';
+  DATA.por_area.forEach(a => {
+    const w = Math.max(a.cumplimiento, 3);
+    areaBars += `
+      <div class="bar-item">
+        <div class="bar-label">${esc(a.area)} (${a.total})</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${w}%;background:${barColor(a.cumplimiento)}">
+            <span>${a.cumplimiento}%</span>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // Sector bars
+  let sectorBars = '';
+  DATA.por_sector.forEach(s => {
+    const w = Math.max(s.cumplimiento, 3);
+    sectorBars += `
+      <div class="bar-item">
+        <div class="bar-label">${esc(s.sector)} (${s.total})</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${w}%;background:${barColor(s.cumplimiento)}">
+            <span>${s.cumplimiento}%</span>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  const gridHTML = `
+    <!-- KPI Principal -->
+    <div class="card kpi-card">
+      <div class="card-header">
+        <span class="card-title">% CUMPLIMIENTO</span>
+      </div>
+      <div class="kpi-main">
+        <div class="kpi-value">${r.cumplimiento}%</div>
+      </div>
+      <div class="kpi-bar">
+        <div class="kpi-bar-fill" style="width: ${r.cumplimiento}%"></div>
+      </div>
+      <div class="kpi-stats">
+        <div class="kpi-stat">
+          <span class="kpi-stat-value total">${r.total}</span>
+          <span class="kpi-stat-label">Total</span>
+        </div>
+        <div class="kpi-stat">
+          <span class="kpi-stat-value ok">${r.concluido}</span>
+          <span class="kpi-stat-label">OK</span>
+        </div>
+        <div class="kpi-stat">
+          <span class="kpi-stat-value proceso">${r.en_proceso}</span>
+          <span class="kpi-stat-label">En proc</span>
+        </div>
+        <div class="kpi-stat">
+          <span class="kpi-stat-value noprog">0</span>
+          <span class="kpi-stat-label">NoP</span>
+        </div>
+        <div class="kpi-stat">
+          <span class="kpi-stat-value retrasado">${r.retrasado}</span>
+          <span class="kpi-stat-label">Retr</span>
+        </div>
+      </div>
+      <div class="kpi-meta">Meta: 95%</div>
+    </div>
+
+    <!-- Chart Indicadores -->
+    <div class="card chart-card">
+      <div class="card-header">
+        <span class="card-title">% CUMPLIMIENTO POR INDICADOR</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="chart-indicadores"></canvas>
+      </div>
+    </div>
+
+    <!-- Responsables -->
+    <div class="card responsables-card">
+      <div class="card-header">
+        <span class="card-title">% POR RESPONSABLE</span>
+        <span class="meta-indicators">Top 20 responsables</span>
+      </div>
+      <div class="responsables-header">
+        <span>Responsable</span><span>Total</span><span>OK</span><span>Proc</span><span>NoP</span><span>Retr</span><span>% Cump</span><span>% Av</span>
+      </div>
+      <div class="responsables-list">${respRows}</div>
+    </div>
+
+    <!-- Areas -->
+    <div class="card area-card">
+      <div class="card-header">
+        <span class="card-title">% CUMPLIMIENTO POR &Aacute;REA</span>
+      </div>
+      <div class="bars-container">${areaBars}</div>
+    </div>
+
+    <!-- Sectores -->
+    <div class="card area-card">
+      <div class="card-header">
+        <span class="card-title">% CUMPLIMIENTO POR SECTOR</span>
+      </div>
+      <div class="bars-container">${sectorBars}</div>
+    </div>
+  `;
+  document.getElementById('dashboard-grid').innerHTML = gridHTML;
+
+  // Build chart
+  setTimeout(() => {
+    const ctx = document.getElementById('chart-indicadores');
+    if (!ctx) return;
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['E', 'Q', 'D', 'S', 'C', 'P', 'M'],
+        labels: indAgg.map(i => i.indicador),
         datasets: [{
-          data: [100, 80, 71, 67, 39, 34, 20],
-          backgroundColor: ['#38a169', '#38a169', '#d69e2e', '#d69e2e', '#3182ce', '#3182ce', '#e53e3e'],
+          label: '% Cumplimiento',
+          data: indAgg.map(i => i.cumplimiento),
+          backgroundColor: indAgg.map(i => barColor(i.cumplimiento)),
           borderRadius: 4,
-          barThickness: 30
+          barThickness: 28
         }]
       },
       options: {
         indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
         scales: {
-          x: { beginAtZero: true, max: 100, grid: { display: false }, ticks: { callback: v => v + '%' } },
+          x: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#edf2f7' } },
           y: { grid: { display: false } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.raw + '%' } }
         }
       }
     });
+  }, 100);
+}
 
-    // Toggle indicadores
-    document.querySelectorAll('.indicador-chip').forEach(chip => {
-      chip.addEventListener('click', () => chip.classList.toggle('selected'));
-    });
-  </script>
+// ============ BUILD REGISTRO ============
+function buildRegistro() {
+  const f = DATA.filtros;
+  const html = `
+    <div class="form-header">
+      <div class="form-header-left">
+        <div class="form-header-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="#3182ce" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <h2>Nuevo Registro de Acci&oacute;n</h2>
+          <p>Complete los campos para registrar una nueva acci&oacute;n de seguimiento</p>
+        </div>
+      </div>
+      <div class="form-header-actions">
+        <button class="btn btn-outline">Cancelar</button>
+        <button class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>PLANTA <span class="required">*</span></label>
+        <select>${f.plantas.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group">
+        <label>TIPO DE REUNI&Oacute;N <span class="required">*</span></label>
+        <select><option value="">Seleccionar...</option>${f.tipos_reunion.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group">
+        <label>HERRAMIENTA <span class="required">*</span></label>
+        <select><option value="">Seleccionar...</option>${f.herramientas.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group">
+        <label>FECHA DE REGISTRO <span class="required">*</span></label>
+        <input type="date" value="2026-01-29">
+      </div>
+      <div class="form-group">
+        <label>REPORTADO POR <span class="required">*</span></label>
+        <input type="text" placeholder="Nombre completo">
+      </div>
+      <div class="form-group">
+        <label>PILAR TPM</label>
+        <select><option value="">Seleccionar...</option>${f.pilares_tpm.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group">
+        <label>GERENCIA</label>
+        <select><option value="">Seleccionar...</option>${f.gerencias.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group">
+        <label>&Aacute;REA</label>
+        <select><option value="">Seleccionar...</option>${f.areas.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group">
+        <label>SECTOR</label>
+        <select><option value="">Seleccionar...</option>${f.sectores.map(p=>'<option>'+esc(p)+'</option>').join('')}</select>
+      </div>
+      <div class="form-group full-width">
+        <label>INDICADORES <span class="required">*</span></label>
+        <div class="indicadores-group">
+          ${['P','Q','C','D','S','M','E'].map(l =>
+            '<div class="indicador-chip" onclick="this.classList.toggle(\'selected\')">'+l+'</div>'
+          ).join('')}
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>PROBLEMA / MOTIVO <span class="required">*</span></label>
+        <textarea placeholder="Describa el problema o motivo de la acci&oacute;n..."></textarea>
+      </div>
+      <div class="form-group full-width">
+        <label>PLAN DE ACCI&Oacute;N <span class="required">*</span></label>
+        <textarea placeholder="Describa el plan de acci&oacute;n a ejecutar..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>RESPONSABLE <span class="required">*</span></label>
+        <input type="text" placeholder="Nombre del responsable">
+      </div>
+      <div class="form-group">
+        <label>VERIFICADOR</label>
+        <input type="text" placeholder="Nombre del verificador">
+      </div>
+      <div class="form-group">
+        <label>FECHA PROGRAMADA <span class="required">*</span></label>
+        <input type="date">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary">Cancelar</button>
+      <button class="btn btn-primary" onclick="alert('Vista de preview - registro no funcional')">Guardar Registro</button>
+    </div>
+  `;
+  document.getElementById('registro-form').innerHTML = html;
+}
+
+// ============ BUILD SEGUIMIENTO ============
+function buildSeguimiento() {
+  const seg = DATA.seguimiento;
+  const r = DATA.resumen;
+  let rows = '';
+  seg.forEach(s => {
+    const sc = statusClass(s.estado);
+    rows += `<tr>
+      <td><span class="status-badge ${sc}">${esc(s.estado)}</span></td>
+      <td><span class="herramienta-badge">${esc(s.herramienta)}</span></td>
+      <td>${esc(s.pilar_tpm || '-')}</td>
+      <td><span class="indicador-link">${esc(s.indicador)}</span></td>
+      <td>
+        <div class="motivo-title">${esc(truncate(s.problema, 50))}</div>
+        <div class="motivo-subtitle">${esc(truncate(s.plan_accion, 60))}</div>
+      </td>
+      <td>${esc(s.responsable)}</td>
+      <td>${s.fecha_registro || '-'}</td>
+      <td>${s.fecha_programada || '-'}</td>
+    </tr>`;
+  });
+
+  const html = `
+    <div class="table-header">
+      <div>
+        <h2 style="font-size:18px;font-weight:600;color:var(--primary-color)">Seguimiento de Acciones</h2>
+        <p style="font-size:13px;color:var(--text-muted)">${seg.length} registros mostrados</p>
+      </div>
+      <div class="table-stats">
+        <div class="table-stat">
+          <span class="table-stat-value" style="color:var(--primary-color)">${r.total}</span>
+          <span class="table-stat-label">Total</span>
+        </div>
+        <div class="table-stat">
+          <span class="table-stat-value" style="color:var(--success-color)">${r.concluido}</span>
+          <span class="table-stat-label">Concluido</span>
+        </div>
+        <div class="table-stat">
+          <span class="table-stat-value" style="color:var(--info-color)">${r.en_proceso}</span>
+          <span class="table-stat-label">En Proceso</span>
+        </div>
+        <div class="table-stat">
+          <span class="table-stat-value" style="color:var(--danger-color)">${r.retrasado}</span>
+          <span class="table-stat-label">Retrasado</span>
+        </div>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>Herramienta</th>
+            <th>Pilar TPM</th>
+            <th>Indicador</th>
+            <th>Problema / Plan de Acci&oacute;n</th>
+            <th>Responsable</th>
+            <th>F. Registro</th>
+            <th>F. Programada</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('seguimiento-table').innerHTML = html;
+}
+
+// ============ BUILD GERENCIA ============
+function buildGerencia() {
+  const r = DATA.resumen;
+  const indAgg = aggregateIndicators();
+
+  // Top KPI cards
+  let kpis = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:24px">
+      <div class="card" style="text-align:center;padding:24px">
+        <div style="font-size:11px;font-weight:600;color:var(--accent-color);text-transform:uppercase;margin-bottom:8px">Cumplimiento General</div>
+        <div style="font-size:48px;font-weight:700;color:var(--danger-color)">${r.cumplimiento}%</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Meta: 95%</div>
+      </div>
+      <div class="card" style="text-align:center;padding:24px">
+        <div style="font-size:11px;font-weight:600;color:var(--accent-color);text-transform:uppercase;margin-bottom:8px">Total Acciones</div>
+        <div style="font-size:48px;font-weight:700;color:var(--primary-color)">${r.total}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${r.pendiente} pendientes</div>
+      </div>
+      <div class="card" style="text-align:center;padding:24px">
+        <div style="font-size:11px;font-weight:600;color:var(--accent-color);text-transform:uppercase;margin-bottom:8px">Concluidas</div>
+        <div style="font-size:48px;font-weight:700;color:var(--success-color)">${r.concluido}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${Math.round(r.concluido/r.total*100)}% del total</div>
+      </div>
+      <div class="card" style="text-align:center;padding:24px">
+        <div style="font-size:11px;font-weight:600;color:var(--accent-color);text-transform:uppercase;margin-bottom:8px">Retrasadas</div>
+        <div style="font-size:48px;font-weight:700;color:var(--danger-color)">${r.retrasado}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${Math.round(r.retrasado/r.total*100)}% del total</div>
+      </div>
+    </div>
+  `;
+
+  // Indicator summary table
+  let indRows = '';
+  indAgg.forEach(i => {
+    const bc = badgeClass(i.cumplimiento);
+    indRows += `<tr>
+      <td style="font-weight:600;font-size:16px;color:var(--secondary-color)">${i.indicador}</td>
+      <td style="text-align:center">${i.total}</td>
+      <td style="text-align:center;color:var(--success-color)">${i.concluido}</td>
+      <td style="text-align:center;color:var(--info-color)">${i.en_proceso}</td>
+      <td style="text-align:center;color:var(--danger-color)">${i.retrasado}</td>
+      <td style="text-align:center"><span class="badge badge-${bc}">${i.cumplimiento}%</span></td>
+    </tr>`;
+  });
+
+  // Top 5 critical responsables (lowest cumplimiento with most actions)
+  const critical = DATA.por_responsable.filter(p=>p.total>=3).sort((a,b)=>a.cumplimiento-b.cumplimiento).slice(0,5);
+  let critRows = '';
+  critical.forEach(p => {
+    const bc = badgeClass(p.cumplimiento);
+    critRows += `<tr>
+      <td>${esc(p.responsable)}</td>
+      <td style="text-align:center">${p.total}</td>
+      <td style="text-align:center;color:var(--danger-color)">${p.retrasado}</td>
+      <td style="text-align:center"><span class="badge badge-${bc}">${p.cumplimiento}%</span></td>
+    </tr>`;
+  });
+
+  const html = kpis + `
+    <div class="gerencia-grid">
+      <div class="gerencia-card">
+        <div class="card-title">Resumen por Indicador PQCDSME</div>
+        <table>
+          <thead><tr><th>Ind.</th><th style="text-align:center">Total</th><th style="text-align:center">OK</th><th style="text-align:center">Proc</th><th style="text-align:center">Retr</th><th style="text-align:center">% Cump</th></tr></thead>
+          <tbody>${indRows}</tbody>
+        </table>
+      </div>
+      <div class="gerencia-card">
+        <div class="card-title">Responsables Cr&iacute;ticos (menor cumplimiento)</div>
+        <table>
+          <thead><tr><th>Responsable</th><th style="text-align:center">Total</th><th style="text-align:center">Retrasado</th><th style="text-align:center">% Cump</th></tr></thead>
+          <tbody>${critRows}</tbody>
+        </table>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:12px">* Responsables con 3+ acciones asignadas</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('gerencia-content').innerHTML = html;
+}
+
+// ============ BUILD ANALISIS ============
+function buildAnalisis() {
+  // Build matrix: herramientas (ACR, AIQ, AFP) vs areas
+  const herramientasTarget = ['ACR', 'AIQ', 'AFP'];
+  const seg = DATA.seguimiento;
+
+  // We need to count herramienta x area from seguimiento data
+  // Since seguimiento only has 20 rows, aggregate from what we have
+  const areaSet = new Set();
+  const matrix = {};
+  herramientasTarget.forEach(h => { matrix[h] = {}; });
+
+  seg.forEach(s => {
+    // Map herramienta to group
+    let hGroup = null;
+    if (s.herramienta && s.herramienta.startsWith('ACR')) hGroup = 'ACR';
+    else if (s.herramienta === 'AIQ') hGroup = 'AIQ';
+    else if (s.herramienta === 'AFP') hGroup = 'AFP';
+
+    if (hGroup && matrix[hGroup]) {
+      const area = s.planta || 'Sin Area';
+      areaSet.add(area);
+      if (!matrix[hGroup][area]) matrix[hGroup][area] = {total:0, concluido:0, retrasado:0, en_proceso:0};
+      matrix[hGroup][area].total++;
+      if (s.estado === 'Concluido') matrix[hGroup][area].concluido++;
+      else if (s.estado === 'Retrasado') matrix[hGroup][area].retrasado++;
+      else if (s.estado && s.estado.includes('Proceso')) matrix[hGroup][area].en_proceso++;
+    }
+  });
+
+  // Also build herramienta distribution from all data
+  const herramientaCount = {};
+  seg.forEach(s => {
+    const h = s.herramienta || 'Otro';
+    herramientaCount[h] = (herramientaCount[h] || 0) + 1;
+  });
+
+  // Indicator letter distribution
+  const indAgg = aggregateIndicators();
+
+  // Matrix by herramienta x estado
+  const herramientaStatus = {};
+  DATA.filtros.herramientas.forEach(h => {
+    herramientaStatus[h] = {total:0, concluido:0, en_proceso:0, retrasado:0};
+  });
+  seg.forEach(s => {
+    const h = s.herramienta;
+    if (herramientaStatus[h]) {
+      herramientaStatus[h].total++;
+      if (s.estado === 'Concluido') herramientaStatus[h].concluido++;
+      else if (s.estado === 'Retrasado') herramientaStatus[h].retrasado++;
+      else herramientaStatus[h].en_proceso++;
+    }
+  });
+
+  // Build area x herramienta matrix from full por_area data
+  let matrizHTML = '';
+  // Herramienta summary
+  let herrRows = '';
+  Object.entries(herramientaStatus).forEach(([h, st]) => {
+    if (st.total === 0) return;
+    const pct = st.total > 0 ? Math.round(st.concluido/st.total*100*10)/10 : 0;
+    const bc = badgeClass(pct);
+    herrRows += `<tr>
+      <td class="metric-name">${esc(h)}</td>
+      <td style="text-align:center">${st.total}</td>
+      <td style="text-align:center;color:var(--success-color)">${st.concluido}</td>
+      <td style="text-align:center;color:var(--info-color)">${st.en_proceso}</td>
+      <td style="text-align:center;color:var(--danger-color)">${st.retrasado}</td>
+      <td style="text-align:center"><span class="badge badge-${bc}">${pct}%</span></td>
+    </tr>`;
+  });
+
+  // Area x Indicator matrix (from por_area data)
+  let areaIndHeaders = '<th>Area</th><th>Total</th><th>Concluido</th><th>En Proceso</th><th>Retrasado</th><th>% Cumplimiento</th>';
+  let areaIndRows = '';
+  DATA.por_area.forEach(a => {
+    const bc = badgeClass(a.cumplimiento);
+    areaIndRows += `<tr>
+      <td class="metric-name">${esc(a.area)}</td>
+      <td style="text-align:center;font-weight:600">${a.total}</td>
+      <td style="text-align:center"><span class="matriz-cell success">${a.concluido}</span></td>
+      <td style="text-align:center"><span class="matriz-cell ${a.en_proceso > 0 ? 'warning' : 'neutral'}">${a.en_proceso}</span></td>
+      <td style="text-align:center"><span class="matriz-cell ${a.retrasado > 0 ? 'danger' : 'neutral'}">${a.retrasado}</span></td>
+      <td style="text-align:center"><span class="badge badge-${bc}">${a.cumplimiento}%</span></td>
+    </tr>`;
+  });
+
+  // Sector analysis
+  let sectorRows = '';
+  DATA.por_sector.forEach(s => {
+    const bc = badgeClass(s.cumplimiento);
+    sectorRows += `<tr>
+      <td class="metric-name">${esc(s.sector)}</td>
+      <td style="text-align:center;font-weight:600">${s.total}</td>
+      <td style="text-align:center"><span class="matriz-cell success">${s.concluido}</span></td>
+      <td style="text-align:center"><span class="matriz-cell ${s.en_proceso > 0 ? 'warning' : 'neutral'}">${s.en_proceso}</span></td>
+      <td style="text-align:center"><span class="matriz-cell ${s.retrasado > 0 ? 'danger' : 'neutral'}">${s.retrasado}</span></td>
+      <td style="text-align:center"><span class="badge badge-${bc}">${s.cumplimiento}%</span></td>
+    </tr>`;
+  });
+
+  const html = `
+    <div class="matriz-container">
+      <div class="matriz-title">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/></svg>
+        Matriz por Herramienta (datos de seguimiento)
+      </div>
+      <table class="matriz-table">
+        <thead><tr><th>Herramienta</th><th>Total</th><th>Concluido</th><th>En Proceso</th><th>Retrasado</th><th>% Cump</th></tr></thead>
+        <tbody>${herrRows}</tbody>
+      </table>
+    </div>
+
+    <div class="matriz-container">
+      <div class="matriz-title">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/></svg>
+        Matriz por &Aacute;rea
+      </div>
+      <table class="matriz-table">
+        <thead><tr>${areaIndHeaders}</tr></thead>
+        <tbody>${areaIndRows}</tbody>
+      </table>
+    </div>
+
+    <div class="matriz-container">
+      <div class="matriz-title">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1" stroke="#3182ce" stroke-width="1.5"/></svg>
+        Matriz por Sector
+      </div>
+      <table class="matriz-table">
+        <thead><tr><th>Sector</th><th>Total</th><th>Concluido</th><th>En Proceso</th><th>Retrasado</th><th>% Cump</th></tr></thead>
+        <tbody>${sectorRows}</tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('analisis-content').innerHTML = html;
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', function() {
+  buildDashboard();
+  buildRegistro();
+  buildSeguimiento();
+  buildGerencia();
+  buildAnalisis();
+});
+</script>
 </body>
 </html>
