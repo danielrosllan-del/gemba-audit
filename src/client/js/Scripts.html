@@ -1,0 +1,430 @@
+<script>
+// ============================================
+// GESTIÓN DE REUNIONES - SCRIPTS PRINCIPALES
+// ============================================
+
+// Variable para almacenar catálogos
+let catalogos = {};
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+
+/**
+ * Inicializar aplicación al cargar la página
+ */
+document.addEventListener('DOMContentLoaded', function() {
+  // Cargar catálogos
+  cargarCatalogos();
+
+  // Configurar navegación
+  configurarNavegacion();
+
+  // Cargar vista inicial (Dashboard)
+  cargarDashboard();
+});
+
+/**
+ * Cargar catálogos para todos los dropdowns
+ */
+function cargarCatalogos() {
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      if (resultado.success) {
+        catalogos = resultado.data;
+        poblarDropdowns();
+      } else {
+        console.error('Error cargando catálogos:', resultado.error);
+        // Usar catálogos por defecto
+        usarCatalogosPorDefecto();
+      }
+    })
+    .withFailureHandler(function(error) {
+      console.error('Error de conexión:', error);
+      usarCatalogosPorDefecto();
+    })
+    .getCatalogos();
+}
+
+/**
+ * Usar catálogos por defecto si falla la carga
+ */
+function usarCatalogosPorDefecto() {
+  catalogos = {
+    plantas: ['Planta Lima', 'Planta Arequipa', 'Planta Trujillo'],
+    gerencias: ['Gerencia de Operaciones', 'Gerencia de Calidad', 'Gerencia de Mantenimiento'],
+    areas: ['Personas & Organización', 'Excelencia Operacional', 'Operaciones Logísticas', 'SHE', 'Conversión', 'Mantenimiento', 'Fabricación', 'Control de Producción', 'Calidad', 'Seguridad Física', 'Gerencia'],
+    sectores: ['Almacén de Repuestos', 'Efluentes', 'Enfardado', 'PP1', 'L110', 'Almacén de Producto Terminado', 'ISO', 'MP1', 'Almacén de Semielaborados'],
+    tiposReunion: ['Diaria', 'Semanal', 'Mensual', 'Extraordinaria'],
+    herramientas: ['ACR', 'ACR - 5W2H', 'AIQ', 'AFP', 'CAPDO', 'Plan de acción', 'Coordinación TPM'],
+    pilaresTPM: ['MA', 'MP', 'ME', 'EI', 'CI', 'SHE', 'ADM', 'ET'],
+    indicadores: ['P', 'Q', 'C', 'D', 'S', 'M', 'E'],
+    estados: ['Concluido', 'En Proceso', 'No Programado', 'Retrasado']
+  };
+  poblarDropdowns();
+}
+
+/**
+ * Poblar todos los dropdowns con catálogos
+ */
+function poblarDropdowns() {
+  // Dashboard filters
+  poblarSelect('filter-planta', catalogos.plantas, 'Todas');
+  poblarSelect('filter-gerencia', catalogos.gerencias, 'Todas');
+  poblarSelect('filter-area', catalogos.areas, 'Todos');
+  poblarSelect('filter-tipo-reunion', catalogos.tiposReunion, 'Todas');
+
+  // Registro form
+  poblarSelect('registro-planta', catalogos.plantas);
+  poblarSelect('registro-tipo-reunion', catalogos.tiposReunion);
+  poblarSelect('registro-herramienta', catalogos.herramientas);
+  poblarSelect('registro-area', catalogos.areas);
+  poblarSelect('registro-sector', catalogos.sectores);
+
+  // Seguimiento filters
+  poblarSelect('seg-filter-planta', catalogos.plantas, 'Todas');
+  poblarSelect('seg-filter-area', catalogos.areas, 'Todas');
+  poblarSelect('seg-filter-sector', catalogos.sectores, 'Todos');
+  poblarSelect('seg-filter-tipo', catalogos.tiposReunion, 'Todas');
+  poblarSelect('seg-filter-pilar', catalogos.pilaresTPM, 'Todos');
+
+  // Gerencia filters
+  poblarSelect('ger-filter-planta', catalogos.plantas, 'Todas');
+  poblarSelect('ger-filter-gerencia', catalogos.gerencias, 'Todas');
+  poblarSelect('ger-filter-area', catalogos.areas, 'Todas');
+
+  // Análisis filters
+  poblarSelect('ana-filter-planta', catalogos.plantas, 'Todas');
+  poblarSelect('ana-filter-gerencia', catalogos.gerencias, 'Todas');
+  poblarSelect('ana-filter-area', catalogos.areas, 'Todas');
+  poblarSelect('ana-filter-sector', catalogos.sectores, 'Todos');
+}
+
+/**
+ * Poblar un select con opciones
+ */
+function poblarSelect(elementId, opciones, valorTodos) {
+  const select = document.getElementById(elementId);
+  if (!select) return;
+
+  // Mantener la primera opción si existe
+  const primeraOpcion = select.options[0];
+
+  // Limpiar opciones existentes
+  select.innerHTML = '';
+
+  // Agregar opción "Todos/Todas" si se especifica
+  if (valorTodos) {
+    const option = document.createElement('option');
+    option.value = valorTodos;
+    option.textContent = valorTodos;
+    select.appendChild(option);
+  } else if (primeraOpcion && primeraOpcion.value === '') {
+    select.appendChild(primeraOpcion);
+  }
+
+  // Agregar opciones del catálogo
+  opciones.forEach(opcion => {
+    const option = document.createElement('option');
+    option.value = opcion;
+    option.textContent = opcion;
+    select.appendChild(option);
+  });
+}
+
+// ============================================
+// NAVEGACIÓN
+// ============================================
+
+/**
+ * Configurar navegación entre vistas
+ */
+function configurarNavegacion() {
+  const navButtons = document.querySelectorAll('.nav-btn');
+
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const view = this.dataset.view;
+      cambiarVista(view);
+
+      // Actualizar estado activo
+      navButtons.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+}
+
+/**
+ * Cambiar vista activa
+ */
+function cambiarVista(viewName) {
+  // Ocultar todas las vistas
+  document.querySelectorAll('.view').forEach(view => {
+    view.classList.remove('active');
+  });
+
+  // Mostrar vista seleccionada
+  const targetView = document.getElementById('view-' + viewName);
+  if (targetView) {
+    targetView.classList.add('active');
+  }
+
+  // Cargar datos de la vista
+  switch(viewName) {
+    case 'dashboard':
+      cargarDashboard();
+      break;
+    case 'registro':
+      inicializarRegistro();
+      break;
+    case 'seguimiento':
+      cargarSeguimiento();
+      break;
+    case 'gerencia':
+      // No cargar datos hasta que se autentique
+      break;
+    case 'analisis':
+      cargarAnalisis();
+      break;
+  }
+}
+
+// ============================================
+// MODALES
+// ============================================
+
+/**
+ * Abrir modal
+ */
+function abrirModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+/**
+ * Cerrar modal
+ */
+function cerrarModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal')) {
+    e.target.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+// Cerrar modal con Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+    document.body.style.overflow = '';
+  }
+});
+
+// ============================================
+// LOADING Y NOTIFICACIONES
+// ============================================
+
+/**
+ * Mostrar overlay de carga
+ */
+function mostrarLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('active');
+  }
+}
+
+/**
+ * Ocultar overlay de carga
+ */
+function ocultarLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+  }
+}
+
+/**
+ * Mostrar notificación toast
+ */
+function mostrarToast(mensaje, tipo = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${tipo}`;
+
+  // Icono según tipo
+  let icono = '';
+  switch(tipo) {
+    case 'success':
+      icono = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>';
+      break;
+    case 'error':
+      icono = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+      break;
+    case 'warning':
+      icono = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+      break;
+    default:
+      icono = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  }
+
+  toast.innerHTML = `${icono}<span>${mensaje}</span>`;
+
+  container.appendChild(toast);
+
+  // Remover después de 4 segundos
+  setTimeout(() => {
+    toast.style.animation = 'slideIn 0.3s ease reverse';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 4000);
+}
+
+// ============================================
+// UTILIDADES
+// ============================================
+
+/**
+ * Formatear fecha para mostrar
+ */
+function formatearFecha(fecha) {
+  if (!fecha) return '-';
+  try {
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: 'short',
+      year: '2-digit'
+    });
+  } catch (e) {
+    return fecha;
+  }
+}
+
+/**
+ * Formatear número con separador de miles
+ */
+function formatearNumero(numero) {
+  return new Intl.NumberFormat('es-PE').format(numero);
+}
+
+/**
+ * Truncar texto con ellipsis
+ */
+function truncarTexto(texto, maxLength) {
+  if (!texto) return '-';
+  if (texto.length <= maxLength) return texto;
+  return texto.substring(0, maxLength) + '...';
+}
+
+/**
+ * Debounce para búsquedas
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Exportar datos a CSV
+ */
+function exportarCSV(datos, nombreArchivo) {
+  if (!datos || datos.length === 0) {
+    mostrarToast('No hay datos para exportar', 'warning');
+    return;
+  }
+
+  const headers = Object.keys(datos[0]);
+  const csvContent = [
+    headers.join(','),
+    ...datos.map(row => headers.map(h => `"${row[h] || ''}"`).join(','))
+  ].join('\n');
+
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = nombreArchivo + '.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Validar email
+ */
+function validarEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+/**
+ * Obtener diferencia de días entre fechas
+ */
+function diasEntreFechas(fecha1, fecha2) {
+  const d1 = new Date(fecha1);
+  const d2 = new Date(fecha2);
+  const diffTime = d2 - d1;
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+// ============================================
+// MANEJO DE ERRORES GLOBAL
+// ============================================
+
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Error global:', message, source, lineno);
+  // No mostrar toast para errores de desarrollo
+  return false;
+};
+
+// ============================================
+// ATAJOS DE TECLADO
+// ============================================
+
+document.addEventListener('keydown', function(e) {
+  // Ctrl + S para guardar (en formulario de registro)
+  if (e.ctrlKey && e.key === 's') {
+    const formRegistro = document.getElementById('form-registro');
+    if (formRegistro && document.getElementById('view-registro').classList.contains('active')) {
+      e.preventDefault();
+      formRegistro.dispatchEvent(new Event('submit'));
+    }
+  }
+
+  // Ctrl + 1-5 para cambiar vistas
+  if (e.ctrlKey && ['1', '2', '3', '4', '5'].includes(e.key)) {
+    e.preventDefault();
+    const vistas = ['dashboard', 'registro', 'seguimiento', 'gerencia', 'analisis'];
+    const index = parseInt(e.key) - 1;
+    if (vistas[index]) {
+      cambiarVista(vistas[index]);
+      document.querySelectorAll('.nav-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+    }
+  }
+});
+</script>

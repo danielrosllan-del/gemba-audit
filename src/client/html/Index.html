@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Reuniones - Seguimiento de Acciones</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Estilos -->
+  <?!= include('Styles'); ?>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" stroke="#0066cc" stroke-width="2"/>
+          <path d="M12 20L18 26L28 14" stroke="#0066cc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="header-title">
+        <h1>Gestión de Reuniones</h1>
+        <span class="subtitle">Seguimiento de acciones</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" data-view="dashboard">DASHBOARD</button>
+      <button class="nav-btn" data-view="registro">REGISTRO</button>
+      <button class="nav-btn" data-view="seguimiento">SEGUIMIENTO</button>
+      <button class="nav-btn" data-view="gerencia">GERENCIA</button>
+      <button class="nav-btn" data-view="analisis">ANÁLISIS</button>
+    </nav>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+    <!-- Vista Dashboard -->
+    <section id="view-dashboard" class="view active">
+      <?!= include('Dashboard'); ?>
+    </section>
+
+    <!-- Vista Registro -->
+    <section id="view-registro" class="view">
+      <?!= include('Registro'); ?>
+    </section>
+
+    <!-- Vista Seguimiento -->
+    <section id="view-seguimiento" class="view">
+      <?!= include('Seguimiento'); ?>
+    </section>
+
+    <!-- Vista Gerencia -->
+    <section id="view-gerencia" class="view">
+      <?!= include('Gerencia'); ?>
+    </section>
+
+    <!-- Vista Análisis -->
+    <section id="view-analisis" class="view">
+      <?!= include('Analisis'); ?>
+    </section>
+  </main>
+
+  <!-- Modal de Acceso Gerencial -->
+  <div id="modal-acceso-gerencial" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="cerrarModal('modal-acceso-gerencial')">&times;</button>
+      <div class="modal-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </div>
+      <h2>Acceso Gerencial</h2>
+      <p>Ingrese sus credenciales</p>
+      <form id="form-acceso-gerencial" onsubmit="verificarAccesoGerencial(event)">
+        <div class="form-group">
+          <label for="dni-gerencial">DNI</label>
+          <input type="text" id="dni-gerencial" placeholder="Ingrese DNI" required>
+        </div>
+        <div class="form-group">
+          <label for="password-gerencial">CONTRASEÑA</label>
+          <input type="password" id="password-gerencial" placeholder="••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Ver Detalle -->
+  <div id="modal-detalle" class="modal">
+    <div class="modal-content modal-lg">
+      <button class="modal-close" onclick="cerrarModal('modal-detalle')">&times;</button>
+      <h2>Detalle de Acción</h2>
+      <div id="detalle-contenido"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación -->
+  <div id="modal-confirmacion" class="modal">
+    <div class="modal-content modal-sm">
+      <div class="modal-icon success">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#38a169" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <h2 id="confirmacion-titulo">Éxito</h2>
+      <p id="confirmacion-mensaje">La operación se completó correctamente.</p>
+      <button class="btn btn-primary" onclick="cerrarModal('modal-confirmacion')">Aceptar</button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <?!= include('Scripts'); ?>
+</body>
+</html>

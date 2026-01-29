@@ -1,0 +1,408 @@
+<!-- ============================================
+     ANÁLISIS VIEW - Matrices de Herramientas y 5W2H
+     ============================================ -->
+
+<!-- Filtros -->
+<div class="filters-bar">
+  <div class="filter-group">
+    <label>PLANTA</label>
+    <select id="ana-filter-planta" onchange="cargarAnalisis()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>GERENCIA</label>
+    <select id="ana-filter-gerencia" onchange="cargarAnalisis()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>AREA</label>
+    <select id="ana-filter-area" onchange="cargarAnalisis()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>SECTOR</label>
+    <select id="ana-filter-sector" onchange="cargarAnalisis()">
+      <option value="Todos">Todos</option>
+    </select>
+  </div>
+</div>
+
+<!-- Matriz de Herramientas -->
+<div class="matriz-container">
+  <div class="matriz-title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+    </svg>
+    Matriz de Herramientas (ACR, AIQ, AFP, CAPDO)
+  </div>
+
+  <table class="matriz-table">
+    <thead>
+      <tr>
+        <th>Metrica</th>
+        <th>+/-</th>
+        <th colspan="2">Conversión</th>
+        <th colspan="2">Fabricación</th>
+        <th colspan="2">Mantenimiento</th>
+        <th colspan="2">Operaciones Logísticas</th>
+        <th colspan="2" class="total-header">TOTAL</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>% Cum</th>
+        <th>5W+2H</th>
+        <th>% Cum</th>
+        <th>5W+2H</th>
+        <th>% Cum</th>
+        <th>5W+2H</th>
+        <th>% Cum</th>
+        <th>5W+2H</th>
+        <th>% Cum</th>
+        <th>5W+2H</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-matriz-herramientas">
+      <!-- Se llena dinámicamente -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Matriz de Planes 5W2H -->
+<div class="matriz-container">
+  <div class="matriz-title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+    </svg>
+    Matriz de Planes 5W2H
+    <span id="plan-5w2h-titulo" style="margin-left: auto; font-weight: 400; color: var(--text-muted); font-size: 13px;">
+      Viendo: Seleccione una acción
+    </span>
+  </div>
+
+  <table class="matriz-table">
+    <thead>
+      <tr>
+        <th>Causa Raíz</th>
+        <th>What (Qué)</th>
+        <th>Who (Quién)</th>
+        <th>Where (Dónde)</th>
+        <th>When (Cuándo)</th>
+        <th>Why (Por qué)</th>
+        <th>How (Cómo)</th>
+        <th>How Much (Costo)</th>
+        <th>Evidencia</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-planes-5w2h">
+      <tr>
+        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+          No hay planes 5W2H registrados para esta acción.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Gráficos de Análisis -->
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+  <!-- Gráfico de tendencia -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">TENDENCIA DE CUMPLIMIENTO (ÚLTIMOS 6 MESES)</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chart-tendencia"></canvas>
+    </div>
+  </div>
+
+  <!-- Gráfico de distribución por herramienta -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">DISTRIBUCIÓN POR HERRAMIENTA</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chart-herramientas"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+// Variables para gráficos
+let chartTendencia = null;
+let chartHerramientas = null;
+
+/**
+ * Cargar datos de análisis
+ */
+function cargarAnalisis() {
+  mostrarLoading();
+
+  const filtros = {
+    planta: document.getElementById('ana-filter-planta').value,
+    gerencia: document.getElementById('ana-filter-gerencia').value,
+    area: document.getElementById('ana-filter-area').value,
+    sector: document.getElementById('ana-filter-sector').value
+  };
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        renderizarAnalisis(resultado.data);
+      } else {
+        mostrarToast('Error al cargar análisis: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .getAnalisisMetrics(filtros);
+}
+
+/**
+ * Renderizar todos los componentes de análisis
+ */
+function renderizarAnalisis(data) {
+  renderizarMatrizHerramientas(data.matrizHerramientas);
+  renderizarPlanes5W2H(data.planes5W2H);
+  renderizarGraficoTendencia();
+  renderizarGraficoHerramientas(data.matrizHerramientas);
+}
+
+/**
+ * Renderizar matriz de herramientas
+ */
+function renderizarMatrizHerramientas(matriz) {
+  const tbody = document.getElementById('tbody-matriz-herramientas');
+  tbody.innerHTML = '';
+
+  const herramientas = ['ACR', 'AIQ', 'AFP', 'CAPDO'];
+  const areas = ['Conversión', 'Fabricación', 'Mantenimiento', 'Operaciones Logísticas'];
+
+  herramientas.forEach(herr => {
+    const tr = document.createElement('tr');
+
+    // Nombre de herramienta
+    tr.innerHTML = `
+      <td class="metric-name">${herr}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="expandirHerramienta('${herr}')">+</button></td>
+    `;
+
+    // Datos por área
+    areas.forEach(area => {
+      const datos = matriz[herr] && matriz[herr][area] ? matriz[herr][area] : { porcentajeCumplimiento: null, porcentaje5W2H: null };
+
+      const cumClass = obtenerClasePorcentaje(datos.porcentajeCumplimiento);
+      const w2hClass = obtenerClasePorcentaje(datos.porcentaje5W2H);
+
+      tr.innerHTML += `
+        <td><span class="matriz-cell ${cumClass}">${datos.porcentajeCumplimiento !== null ? datos.porcentajeCumplimiento + '%' : '-'}</span></td>
+        <td><span class="matriz-cell ${w2hClass}">${datos.porcentaje5W2H !== null ? datos.porcentaje5W2H + '%' : '-'}</span></td>
+      `;
+    });
+
+    // Total
+    const total = matriz[herr] && matriz[herr]['TOTAL'] ? matriz[herr]['TOTAL'] : { porcentajeCumplimiento: null, porcentaje5W2H: null };
+    const totalCumClass = obtenerClasePorcentaje(total.porcentajeCumplimiento);
+    const totalW2hClass = obtenerClasePorcentaje(total.porcentaje5W2H);
+
+    tr.innerHTML += `
+      <td><span class="matriz-cell ${totalCumClass}">${total.porcentajeCumplimiento !== null ? total.porcentajeCumplimiento + '%' : '-'}</span></td>
+      <td><span class="matriz-cell ${totalW2hClass}">${total.porcentaje5W2H !== null ? total.porcentaje5W2H + '%' : '-'}</span></td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+/**
+ * Obtener clase CSS según porcentaje
+ */
+function obtenerClasePorcentaje(porcentaje) {
+  if (porcentaje === null) return 'neutral';
+  if (porcentaje >= 80) return 'success';
+  if (porcentaje >= 50) return 'warning';
+  return 'danger';
+}
+
+/**
+ * Renderizar planes 5W2H
+ */
+function renderizarPlanes5W2H(planes) {
+  const tbody = document.getElementById('tbody-planes-5w2h');
+  tbody.innerHTML = '';
+
+  if (!planes || planes.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+          No hay planes 5W2H registrados para esta acción.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  planes.forEach(plan => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${plan.causaRaiz || '-'}</td>
+      <td>${plan.what || '-'}</td>
+      <td>${plan.who || '-'}</td>
+      <td>${plan.where || '-'}</td>
+      <td>${plan.when || '-'}</td>
+      <td>${plan.why || '-'}</td>
+      <td>${plan.how || '-'}</td>
+      <td>${plan.howMuch || '-'}</td>
+      <td>
+        ${plan.evidencia ?
+          `<a href="${plan.evidencia}" target="_blank" class="action-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+              <polyline points="15,3 21,3 21,9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Ver
+          </a>` : '-'
+        }
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/**
+ * Expandir herramienta (mostrar detalles)
+ */
+function expandirHerramienta(herramienta) {
+  console.log('Expandir herramienta:', herramienta);
+  // Implementar vista expandida de herramienta
+}
+
+/**
+ * Renderizar gráfico de tendencia
+ */
+function renderizarGraficoTendencia() {
+  const ctx = document.getElementById('chart-tendencia').getContext('2d');
+
+  if (chartTendencia) {
+    chartTendencia.destroy();
+  }
+
+  // Datos de ejemplo (en producción vendrían del servidor)
+  const meses = ['Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene'];
+  const cumplimiento = [45, 52, 48, 61, 58, 65];
+  const meta = [95, 95, 95, 95, 95, 95];
+
+  chartTendencia = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [
+        {
+          label: 'Cumplimiento',
+          data: cumplimiento,
+          borderColor: '#3182ce',
+          backgroundColor: 'rgba(49, 130, 206, 0.1)',
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Meta',
+          data: meta,
+          borderColor: '#e53e3e',
+          borderDash: [5, 5],
+          fill: false,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Renderizar gráfico de distribución por herramienta
+ */
+function renderizarGraficoHerramientas(matriz) {
+  const ctx = document.getElementById('chart-herramientas').getContext('2d');
+
+  if (chartHerramientas) {
+    chartHerramientas.destroy();
+  }
+
+  const herramientas = ['ACR', 'AIQ', 'AFP', 'CAPDO'];
+  const valores = herramientas.map(h => {
+    if (matriz[h] && matriz[h]['TOTAL']) {
+      return matriz[h]['TOTAL'].porcentajeCumplimiento || 0;
+    }
+    return 0;
+  });
+
+  const colores = valores.map(v => {
+    if (v >= 80) return '#38a169';
+    if (v >= 50) return '#d69e2e';
+    return '#e53e3e';
+  });
+
+  chartHerramientas = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: herramientas,
+      datasets: [{
+        data: valores.map(v => v || 1), // Evitar valores 0
+        backgroundColor: colores,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const idx = context.dataIndex;
+              return herramientas[idx] + ': ' + valores[idx] + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// Inicializar análisis al cargar
+document.addEventListener('DOMContentLoaded', function() {
+  // Se cargará cuando se active la vista
+});
+</script>

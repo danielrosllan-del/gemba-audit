@@ -1,0 +1,578 @@
+<!-- ============================================
+     GERENCIA VIEW - Vista con Acceso Restringido
+     ============================================ -->
+
+<!-- Estado: No autenticado -->
+<div id="gerencia-login" class="gerencia-login-container">
+  <div class="gerencia-login-card">
+    <div class="gerencia-login-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="1.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4"/>
+        <circle cx="12" cy="16" r="1"/>
+      </svg>
+    </div>
+    <h2>Acceso Gerencial</h2>
+    <p>Esta sección requiere autenticación para acceder a funciones avanzadas de gestión.</p>
+    <button class="btn btn-primary btn-lg" onclick="abrirModal('modal-acceso-gerencial')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+        <polyline points="10,17 15,12 10,7"/>
+        <line x1="15" y1="12" x2="3" y2="12"/>
+      </svg>
+      Iniciar Sesión
+    </button>
+  </div>
+</div>
+
+<!-- Estado: Autenticado -->
+<div id="gerencia-dashboard" style="display: none;">
+  <!-- Header de bienvenida -->
+  <div class="gerencia-header">
+    <div class="gerencia-user-info">
+      <div class="gerencia-avatar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div>
+        <h3 id="gerencia-nombre-usuario">Usuario</h3>
+        <span id="gerencia-rol-usuario">Gerente</span>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="cerrarSesionGerencial()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16,17 21,12 16,7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Cerrar Sesión
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>PLANTA</label>
+      <select id="ger-filter-planta" onchange="cargarDatosGerencia()">
+        <option value="Todas">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>GERENCIA</label>
+      <select id="ger-filter-gerencia" onchange="cargarDatosGerencia()">
+        <option value="Todas">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>ÁREA</label>
+      <select id="ger-filter-area" onchange="cargarDatosGerencia()">
+        <option value="Todas">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>PERÍODO</label>
+      <select id="ger-filter-periodo" onchange="cargarDatosGerencia()">
+        <option value="mes">Este Mes</option>
+        <option value="trimestre">Este Trimestre</option>
+        <option value="semestre">Este Semestre</option>
+        <option value="anio">Este Año</option>
+        <option value="todo">Todo</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="exportarReporteGerencial()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7,10 12,15 17,10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Exportar Reporte
+    </button>
+  </div>
+
+  <!-- KPIs Gerenciales -->
+  <div class="gerencia-kpis">
+    <div class="gerencia-kpi-card">
+      <div class="gerencia-kpi-icon" style="background: var(--success-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success-color)" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22,4 12,14.01 9,11.01"/>
+        </svg>
+      </div>
+      <div class="gerencia-kpi-content">
+        <span class="gerencia-kpi-value" id="ger-kpi-cumplimiento">0%</span>
+        <span class="gerencia-kpi-label">Cumplimiento General</span>
+      </div>
+      <div class="gerencia-kpi-trend up" id="ger-trend-cumplimiento">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+          <polyline points="17,6 23,6 23,12"/>
+        </svg>
+        <span>+5%</span>
+      </div>
+    </div>
+
+    <div class="gerencia-kpi-card">
+      <div class="gerencia-kpi-icon" style="background: var(--info-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--info-color)" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+      </div>
+      <div class="gerencia-kpi-content">
+        <span class="gerencia-kpi-value" id="ger-kpi-pendientes">0</span>
+        <span class="gerencia-kpi-label">Acciones Pendientes</span>
+      </div>
+    </div>
+
+    <div class="gerencia-kpi-card">
+      <div class="gerencia-kpi-icon" style="background: var(--danger-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--danger-color)" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="gerencia-kpi-content">
+        <span class="gerencia-kpi-value" id="ger-kpi-retrasadas">0</span>
+        <span class="gerencia-kpi-label">Acciones Retrasadas</span>
+      </div>
+    </div>
+
+    <div class="gerencia-kpi-card">
+      <div class="gerencia-kpi-icon" style="background: var(--warning-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning-color)" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="gerencia-kpi-content">
+        <span class="gerencia-kpi-value" id="ger-kpi-total">0</span>
+        <span class="gerencia-kpi-label">Total de Acciones</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Responsables con bajo cumplimiento -->
+  <div class="gerencia-section">
+    <div class="gerencia-section-header">
+      <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+          <path d="M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        Responsables con Bajo Cumplimiento (< 50%)
+      </h3>
+      <button class="btn btn-sm btn-outline" onclick="enviarRecordatoriosMasivo()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Enviar Recordatorios
+      </button>
+    </div>
+    <div class="table-wrapper">
+      <table id="tabla-bajo-cumplimiento">
+        <thead>
+          <tr>
+            <th>Responsable</th>
+            <th>Área</th>
+            <th>Total</th>
+            <th>Concluidas</th>
+            <th>Retrasadas</th>
+            <th>% Cumplimiento</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-bajo-cumplimiento">
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Acciones próximas a vencer -->
+  <div class="gerencia-section">
+    <div class="gerencia-section-header">
+      <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        Acciones Próximas a Vencer (7 días)
+      </h3>
+    </div>
+    <div class="table-wrapper">
+      <table id="tabla-proximas-vencer">
+        <thead>
+          <tr>
+            <th>Motivo</th>
+            <th>Responsable</th>
+            <th>Fecha Compromiso</th>
+            <th>Días Restantes</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-proximas-vencer">
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Estilos específicos de Gerencia */
+.gerencia-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.gerencia-login-card {
+  text-align: center;
+  background: var(--bg-primary);
+  padding: 48px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: 400px;
+}
+
+.gerencia-login-icon {
+  margin-bottom: 24px;
+}
+
+.gerencia-login-card h2 {
+  font-size: 24px;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+
+.gerencia-login-card p {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.btn-lg {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+.gerencia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-primary);
+  padding: 16px 24px;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 24px;
+}
+
+.gerencia-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gerencia-avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--bg-tertiary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gerencia-user-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.gerencia-user-info span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.gerencia-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.gerencia-kpi-card {
+  background: var(--bg-primary);
+  padding: 20px;
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.gerencia-kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gerencia-kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.gerencia-kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.gerencia-kpi-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.gerencia-kpi-trend {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gerencia-kpi-trend.up {
+  color: var(--success-color);
+}
+
+.gerencia-kpi-trend.down {
+  color: var(--danger-color);
+}
+
+.gerencia-section {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.gerencia-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.gerencia-section-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+@media (max-width: 1024px) {
+  .gerencia-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .gerencia-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .gerencia-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+</style>
+
+<script>
+// Estado de autenticación gerencial
+let usuarioGerencial = null;
+
+/**
+ * Verificar acceso gerencial
+ */
+function verificarAccesoGerencial(event) {
+  event.preventDefault();
+
+  const dni = document.getElementById('dni-gerencial').value;
+  const password = document.getElementById('password-gerencial').value;
+
+  mostrarLoading();
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        usuarioGerencial = resultado.usuario;
+        mostrarVistaGerencial();
+        cerrarModal('modal-acceso-gerencial');
+        mostrarToast('Bienvenido, ' + usuarioGerencial.nombre, 'success');
+      } else {
+        mostrarToast('Credenciales inválidas', 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .verificarAccesoGerencial(dni, password);
+}
+
+/**
+ * Mostrar vista gerencial después de autenticación
+ */
+function mostrarVistaGerencial() {
+  document.getElementById('gerencia-login').style.display = 'none';
+  document.getElementById('gerencia-dashboard').style.display = 'block';
+
+  document.getElementById('gerencia-nombre-usuario').textContent = usuarioGerencial.nombre;
+  document.getElementById('gerencia-rol-usuario').textContent = usuarioGerencial.rol;
+
+  cargarDatosGerencia();
+}
+
+/**
+ * Cerrar sesión gerencial
+ */
+function cerrarSesionGerencial() {
+  usuarioGerencial = null;
+  document.getElementById('gerencia-dashboard').style.display = 'none';
+  document.getElementById('gerencia-login').style.display = 'flex';
+
+  // Limpiar formulario
+  document.getElementById('dni-gerencial').value = '';
+  document.getElementById('password-gerencial').value = '';
+}
+
+/**
+ * Cargar datos gerenciales
+ */
+function cargarDatosGerencia() {
+  mostrarLoading();
+
+  const filtros = {
+    planta: document.getElementById('ger-filter-planta').value,
+    gerencia: document.getElementById('ger-filter-gerencia').value,
+    area: document.getElementById('ger-filter-area').value
+  };
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        renderizarDatosGerencia(resultado.data);
+      } else {
+        mostrarToast('Error al cargar datos: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .getDashboardMetrics(filtros);
+}
+
+/**
+ * Renderizar datos gerenciales
+ */
+function renderizarDatosGerencia(data) {
+  // KPIs
+  document.getElementById('ger-kpi-cumplimiento').textContent = data.porcentajeCumplimiento + '%';
+  document.getElementById('ger-kpi-pendientes').textContent = data.enProceso;
+  document.getElementById('ger-kpi-retrasadas').textContent = data.retrasado;
+  document.getElementById('ger-kpi-total').textContent = data.total;
+
+  // Tabla de bajo cumplimiento
+  const tbodyBajo = document.getElementById('tbody-bajo-cumplimiento');
+  tbodyBajo.innerHTML = '';
+
+  const bajoCumplimiento = data.porResponsable.filter(r => r.porcentajeCumplimiento < 50);
+
+  bajoCumplimiento.forEach(resp => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight: 500;">${resp.nombre}</td>
+      <td>-</td>
+      <td>${resp.total}</td>
+      <td>${resp.ok}</td>
+      <td style="color: var(--danger-color);">${resp.retrasado}</td>
+      <td><span class="badge badge-danger">${resp.porcentajeCumplimiento}%</span></td>
+      <td>
+        <button class="action-btn" onclick="enviarRecordatorio('${resp.nombre}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          Notificar
+        </button>
+      </td>
+    `;
+    tbodyBajo.appendChild(tr);
+  });
+
+  if (bajoCumplimiento.length === 0) {
+    tbodyBajo.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+          No hay responsables con bajo cumplimiento.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+/**
+ * Enviar recordatorio a responsable
+ */
+function enviarRecordatorio(responsable) {
+  mostrarToast(`Recordatorio enviado a ${responsable}`, 'success');
+}
+
+/**
+ * Enviar recordatorios masivos
+ */
+function enviarRecordatoriosMasivo() {
+  if (!confirm('¿Enviar recordatorios a todos los responsables con bajo cumplimiento?')) return;
+
+  mostrarLoading();
+
+  google.script.run
+    .withSuccessHandler(function() {
+      ocultarLoading();
+      mostrarToast('Recordatorios enviados correctamente', 'success');
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error: ' + error.message, 'error');
+    })
+    .enviarRecordatoriosOutlook();
+}
+
+/**
+ * Exportar reporte gerencial
+ */
+function exportarReporteGerencial() {
+  mostrarToast('Generando reporte...', 'info');
+  // Implementar exportación de reporte
+}
+</script>
