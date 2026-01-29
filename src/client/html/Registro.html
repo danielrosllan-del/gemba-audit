@@ -1,0 +1,384 @@
+<!-- ============================================
+     REGISTRO VIEW - Formulario de Registro de Acciones
+     ============================================ -->
+
+<div class="form-container">
+  <!-- Header del Formulario -->
+  <div class="form-header">
+    <div class="form-header-left">
+      <div class="form-header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a365d" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10,9 9,9 8,9"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Registro Masivo</h2>
+        <p>Cargar múltiples acciones principales</p>
+      </div>
+    </div>
+    <div class="form-header-actions">
+      <button class="btn btn-outline" onclick="descargarPlantilla()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Plantilla Maestra
+      </button>
+      <button class="btn btn-primary" onclick="document.getElementById('file-excel').click()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="17,8 12,3 7,8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Subir Excel
+      </button>
+      <input type="file" id="file-excel" accept=".xlsx,.xls" style="display:none" onchange="procesarArchivoExcel(this)">
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <form id="form-registro" onsubmit="guardarRegistro(event)">
+    <div class="form-grid">
+      <!-- Fecha Registro -->
+      <div class="form-group">
+        <label>FECHA REGISTRO <span class="required">*</span></label>
+        <input type="date" id="fecha-registro" required>
+      </div>
+
+      <!-- Planta -->
+      <div class="form-group">
+        <label>PLANTA <span class="required">*</span></label>
+        <select id="registro-planta" required>
+          <option value="">Seleccione Planta</option>
+        </select>
+      </div>
+
+      <!-- Donde -->
+      <div class="form-group">
+        <label>DONDE <span class="required">*</span></label>
+        <input type="text" id="registro-donde" placeholder="Area - Sector o Lugar..." required>
+      </div>
+
+      <!-- Tipo Reunión -->
+      <div class="form-group">
+        <label>TIPO REUNIÓN <span class="required">*</span></label>
+        <select id="registro-tipo-reunion" required>
+          <option value="">Seleccione</option>
+        </select>
+      </div>
+
+      <!-- Herramienta -->
+      <div class="form-group">
+        <label>HERRAMIENTA <span class="required">*</span></label>
+        <select id="registro-herramienta" required>
+          <option value="">Seleccione</option>
+        </select>
+      </div>
+
+      <!-- Reportado Por -->
+      <div class="form-group">
+        <label>REPORTADO POR <span class="required">*</span></label>
+        <input type="text" id="registro-reportado-por" placeholder="..." required>
+      </div>
+
+      <!-- Verificador -->
+      <div class="form-group">
+        <label>VERIFICADOR <span class="required">*</span></label>
+        <input type="text" id="registro-verificador" placeholder="..." required>
+      </div>
+
+      <!-- Espacio vacío para alineación -->
+      <div class="form-group"></div>
+      <div class="form-group"></div>
+
+      <!-- Motivo -->
+      <div class="form-group full-width">
+        <label>MOTIVO</label>
+        <textarea id="registro-motivo" placeholder="Describa el motivo de la acción..."></textarea>
+      </div>
+
+      <!-- Plan -->
+      <div class="form-group full-width">
+        <label>PLAN <span class="required">*</span></label>
+        <textarea id="registro-plan" placeholder="Describa el plan de acción..." required></textarea>
+      </div>
+
+      <!-- Indicadores -->
+      <div class="form-group full-width">
+        <label>INDICADOR(ES) <span class="required">*</span></label>
+        <div class="indicadores-group" id="indicadores-group">
+          <button type="button" class="indicador-chip" data-indicador="P">P</button>
+          <button type="button" class="indicador-chip" data-indicador="Q">Q</button>
+          <button type="button" class="indicador-chip" data-indicador="C">C</button>
+          <button type="button" class="indicador-chip" data-indicador="D">D</button>
+          <button type="button" class="indicador-chip" data-indicador="S">S</button>
+          <button type="button" class="indicador-chip" data-indicador="M">M</button>
+          <button type="button" class="indicador-chip" data-indicador="E">E</button>
+        </div>
+        <input type="hidden" id="registro-indicadores" required>
+      </div>
+
+      <!-- Responsables -->
+      <div class="form-group half-width">
+        <label>RESPONSABLES <span class="required">*</span></label>
+        <input type="text" id="registro-responsables" placeholder="..." required>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label>EMAIL</label>
+        <input type="email" id="registro-email" placeholder="correo@ejemplo.com">
+      </div>
+
+      <!-- Fecha Compromiso -->
+      <div class="form-group">
+        <label>FECHA COMPROMISO</label>
+        <input type="date" id="registro-fecha-compromiso">
+      </div>
+
+      <!-- Área (nuevo) -->
+      <div class="form-group">
+        <label>ÁREA</label>
+        <select id="registro-area">
+          <option value="">Seleccione</option>
+        </select>
+      </div>
+
+      <!-- Sector (nuevo) -->
+      <div class="form-group">
+        <label>SECTOR</label>
+        <select id="registro-sector">
+          <option value="">Seleccione</option>
+        </select>
+      </div>
+
+      <!-- Comentarios -->
+      <div class="form-group full-width">
+        <label>COMENTARIOS</label>
+        <textarea id="registro-comentarios" placeholder="Comentarios adicionales..."></textarea>
+      </div>
+    </div>
+
+    <!-- Acciones del formulario -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<script>
+// Variables para indicadores seleccionados
+let indicadoresSeleccionados = [];
+
+/**
+ * Inicializar vista de registro
+ */
+function inicializarRegistro() {
+  // Establecer fecha actual
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('fecha-registro').value = hoy;
+  document.getElementById('registro-fecha-compromiso').value = hoy;
+
+  // Configurar eventos de indicadores
+  document.querySelectorAll('.indicador-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const indicador = this.dataset.indicador;
+      toggleIndicador(indicador, this);
+    });
+  });
+}
+
+/**
+ * Toggle selección de indicador
+ */
+function toggleIndicador(indicador, elemento) {
+  const index = indicadoresSeleccionados.indexOf(indicador);
+
+  if (index > -1) {
+    indicadoresSeleccionados.splice(index, 1);
+    elemento.classList.remove('selected');
+  } else {
+    indicadoresSeleccionados.push(indicador);
+    elemento.classList.add('selected');
+  }
+
+  document.getElementById('registro-indicadores').value = indicadoresSeleccionados.join(',');
+}
+
+/**
+ * Guardar registro de acción
+ */
+function guardarRegistro(event) {
+  event.preventDefault();
+
+  // Validar indicadores
+  if (indicadoresSeleccionados.length === 0) {
+    mostrarToast('Debe seleccionar al menos un indicador', 'warning');
+    return;
+  }
+
+  const accion = {
+    fechaRegistro: document.getElementById('fecha-registro').value,
+    planta: document.getElementById('registro-planta').value,
+    donde: document.getElementById('registro-donde').value,
+    tipoReunion: document.getElementById('registro-tipo-reunion').value,
+    herramienta: document.getElementById('registro-herramienta').value,
+    reportadoPor: document.getElementById('registro-reportado-por').value,
+    verificador: document.getElementById('registro-verificador').value,
+    motivo: document.getElementById('registro-motivo').value,
+    plan: document.getElementById('registro-plan').value,
+    indicadores: indicadoresSeleccionados,
+    responsables: document.getElementById('registro-responsables').value,
+    email: document.getElementById('registro-email').value,
+    fechaCompromiso: document.getElementById('registro-fecha-compromiso').value,
+    area: document.getElementById('registro-area').value,
+    sector: document.getElementById('registro-sector').value,
+    comentarios: document.getElementById('registro-comentarios').value
+  };
+
+  mostrarLoading();
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        mostrarToast('Acción registrada correctamente', 'success');
+        limpiarFormulario();
+
+        // Mostrar modal de confirmación
+        document.getElementById('confirmacion-titulo').textContent = 'Registro Exitoso';
+        document.getElementById('confirmacion-mensaje').textContent =
+          'La acción ha sido registrada correctamente. Se ha enviado una notificación al responsable.';
+        abrirModal('modal-confirmacion');
+      } else {
+        mostrarToast('Error: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .guardarAccion(accion);
+}
+
+/**
+ * Limpiar formulario
+ */
+function limpiarFormulario() {
+  document.getElementById('form-registro').reset();
+
+  // Resetear indicadores
+  indicadoresSeleccionados = [];
+  document.querySelectorAll('.indicador-chip').forEach(chip => {
+    chip.classList.remove('selected');
+  });
+  document.getElementById('registro-indicadores').value = '';
+
+  // Restablecer fecha actual
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('fecha-registro').value = hoy;
+}
+
+/**
+ * Descargar plantilla maestra de Excel
+ */
+function descargarPlantilla() {
+  mostrarLoading();
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        // Crear enlace de descarga
+        const blob = base64ToBlob(resultado.data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = resultado.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        mostrarToast('Plantilla descargada correctamente', 'success');
+      } else {
+        mostrarToast('Error: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .generarPlantillaMaestra();
+}
+
+/**
+ * Procesar archivo Excel para carga masiva
+ */
+function procesarArchivoExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result.split(',')[1];
+
+    mostrarLoading();
+
+    google.script.run
+      .withSuccessHandler(function(resultado) {
+        ocultarLoading();
+        if (resultado.success) {
+          const datos = resultado.data;
+          let mensaje = `Carga completada: ${datos.exitosos} registros exitosos.`;
+          if (datos.errores.length > 0) {
+            mensaje += ` ${datos.errores.length} errores.`;
+          }
+          mostrarToast(mensaje, datos.errores.length > 0 ? 'warning' : 'success');
+
+          // Mostrar errores si existen
+          if (datos.errores.length > 0) {
+            console.log('Errores en carga masiva:', datos.errores);
+          }
+        } else {
+          mostrarToast('Error: ' + resultado.error, 'error');
+        }
+      })
+      .withFailureHandler(function(error) {
+        ocultarLoading();
+        mostrarToast('Error de conexión: ' + error.message, 'error');
+      })
+      .procesarCargaMasiva(base64);
+  };
+  reader.readAsDataURL(file);
+
+  // Limpiar input
+  input.value = '';
+}
+
+/**
+ * Convertir base64 a Blob
+ */
+function base64ToBlob(base64, type) {
+  const binary = atob(base64);
+  const len = binary.length;
+  const buffer = new ArrayBuffer(len);
+  const view = new Uint8Array(buffer);
+  for (let i = 0; i < len; i++) {
+    view[i] = binary.charCodeAt(i);
+  }
+  return new Blob([buffer], { type: type });
+}
+
+// Inicializar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+  inicializarRegistro();
+});
+</script>

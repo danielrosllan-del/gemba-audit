@@ -1,0 +1,374 @@
+<!-- ============================================
+     DASHBOARD VIEW
+     ============================================ -->
+
+<!-- Filtros del Dashboard -->
+<div class="filters-bar">
+  <div class="filter-group">
+    <label>PLANTA</label>
+    <select id="filter-planta" onchange="aplicarFiltrosDashboard()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>GERENCIA</label>
+    <select id="filter-gerencia" onchange="aplicarFiltrosDashboard()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>AREA</label>
+    <select id="filter-area" onchange="aplicarFiltrosDashboard()">
+      <option value="Todos">Todos</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>TIPO REUNIÓN</label>
+    <select id="filter-tipo-reunion" onchange="aplicarFiltrosDashboard()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <button class="btn-limpiar" onclick="limpiarFiltrosDashboard()">Limpiar</button>
+</div>
+
+<!-- Grid Principal del Dashboard -->
+<div class="dashboard-grid">
+  <!-- KPI Principal: % Cumplimiento -->
+  <div class="card kpi-card">
+    <div class="card-header">
+      <span class="card-title">% CUMPLIMIENTO</span>
+    </div>
+    <div class="kpi-main">
+      <div class="kpi-value" id="kpi-cumplimiento">0%</div>
+    </div>
+    <div class="kpi-bar">
+      <div class="kpi-bar-fill" id="kpi-cumplimiento-bar" style="width: 0%"></div>
+    </div>
+    <div class="kpi-stats">
+      <div class="kpi-stat">
+        <span class="kpi-stat-value total" id="kpi-total">0</span>
+        <span class="kpi-stat-label">Total</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="kpi-stat-value ok" id="kpi-ok">0</span>
+        <span class="kpi-stat-label">OK</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="kpi-stat-value proceso" id="kpi-proceso">0</span>
+        <span class="kpi-stat-label">En proc</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="kpi-stat-value noprog" id="kpi-noprog">0</span>
+        <span class="kpi-stat-label">NoP</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="kpi-stat-value retrasado" id="kpi-retrasado">0</span>
+        <span class="kpi-stat-label">Retr</span>
+      </div>
+    </div>
+    <div class="kpi-meta">Meta: 95%</div>
+  </div>
+
+  <!-- Gráfico: % Cumplimiento por Indicador -->
+  <div class="card chart-card">
+    <div class="card-header">
+      <span class="card-title">% CUMPLIMIENTO POR INDICADOR</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chart-indicadores"></canvas>
+    </div>
+  </div>
+
+  <!-- Tabla: % Por Responsable -->
+  <div class="card responsables-card">
+    <div class="card-header">
+      <span class="card-title">% POR RESPONSABLE</span>
+      <div class="meta-indicators">META CUMP: 95% | META AVAN: 75%</div>
+    </div>
+    <div class="responsables-header">
+      <span style="flex: 2">Responsable</span>
+      <span>Total</span>
+      <span>OK</span>
+      <span>En proc</span>
+      <span>No Prog</span>
+      <span>Retr</span>
+      <span>% Cump.</span>
+      <span>% Avance</span>
+    </div>
+    <div class="responsables-list" id="responsables-list">
+      <!-- Se llena dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Gráfico: % Cumplimiento por Área -->
+  <div class="card area-card">
+    <div class="card-header">
+      <span class="card-title">% CUMPLIMIENTO POR ÁREA</span>
+    </div>
+    <div class="bars-container" id="bars-area">
+      <!-- Se llena dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Gráfico: % Cumplimiento por Sector -->
+  <div class="card area-card">
+    <div class="card-header">
+      <span class="card-title">% CUMPLIMIENTO POR SECTOR</span>
+    </div>
+    <div class="bars-container" id="bars-sector">
+      <!-- Se llena dinámicamente -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Variables para los gráficos
+let chartIndicadores = null;
+
+/**
+ * Cargar datos del dashboard
+ */
+function cargarDashboard() {
+  mostrarLoading();
+
+  const filtros = obtenerFiltrosDashboard();
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        renderizarDashboard(resultado.data);
+      } else {
+        mostrarToast('Error al cargar dashboard: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .getDashboardMetrics(filtros);
+}
+
+/**
+ * Obtener filtros actuales del dashboard
+ */
+function obtenerFiltrosDashboard() {
+  return {
+    planta: document.getElementById('filter-planta').value,
+    gerencia: document.getElementById('filter-gerencia').value,
+    area: document.getElementById('filter-area').value,
+    tipoReunion: document.getElementById('filter-tipo-reunion').value
+  };
+}
+
+/**
+ * Aplicar filtros y recargar dashboard
+ */
+function aplicarFiltrosDashboard() {
+  cargarDashboard();
+}
+
+/**
+ * Limpiar todos los filtros
+ */
+function limpiarFiltrosDashboard() {
+  document.getElementById('filter-planta').value = 'Todas';
+  document.getElementById('filter-gerencia').value = 'Todas';
+  document.getElementById('filter-area').value = 'Todos';
+  document.getElementById('filter-tipo-reunion').value = 'Todas';
+  cargarDashboard();
+}
+
+/**
+ * Renderizar todos los componentes del dashboard
+ */
+function renderizarDashboard(data) {
+  // KPIs principales
+  renderizarKPIs(data);
+
+  // Gráfico de indicadores
+  renderizarGraficoIndicadores(data.porIndicador);
+
+  // Lista de responsables
+  renderizarResponsables(data.porResponsable);
+
+  // Barras por área
+  renderizarBarras('bars-area', data.porArea);
+
+  // Barras por sector
+  renderizarBarras('bars-sector', data.porSector);
+}
+
+/**
+ * Renderizar KPIs principales
+ */
+function renderizarKPIs(data) {
+  const cumplimiento = data.porcentajeCumplimiento;
+
+  // Valor principal
+  const kpiEl = document.getElementById('kpi-cumplimiento');
+  kpiEl.textContent = cumplimiento + '%';
+
+  // Clase de color según valor
+  kpiEl.className = 'kpi-value';
+  if (cumplimiento >= 95) {
+    kpiEl.classList.add('success');
+  } else if (cumplimiento >= 50) {
+    kpiEl.classList.add('warning');
+  }
+
+  // Barra de progreso
+  const barEl = document.getElementById('kpi-cumplimiento-bar');
+  barEl.style.width = cumplimiento + '%';
+  barEl.className = 'kpi-bar-fill';
+  if (cumplimiento >= 95) {
+    barEl.classList.add('success');
+  } else if (cumplimiento >= 50) {
+    barEl.classList.add('warning');
+  }
+
+  // Estadísticas
+  document.getElementById('kpi-total').textContent = data.total;
+  document.getElementById('kpi-ok').textContent = data.ok;
+  document.getElementById('kpi-proceso').textContent = data.enProceso;
+  document.getElementById('kpi-noprog').textContent = data.noProgramado;
+  document.getElementById('kpi-retrasado').textContent = data.retrasado;
+}
+
+/**
+ * Renderizar gráfico de indicadores (barras horizontales)
+ */
+function renderizarGraficoIndicadores(porIndicador) {
+  const ctx = document.getElementById('chart-indicadores').getContext('2d');
+
+  // Destruir gráfico anterior si existe
+  if (chartIndicadores) {
+    chartIndicadores.destroy();
+  }
+
+  const labels = ['E', 'Q', 'D', 'S', 'C', 'P', 'M'];
+  const valores = labels.map(ind => porIndicador[ind] || 0);
+
+  // Colores según valor
+  const colores = valores.map(val => {
+    if (val >= 95) return '#38a169';
+    if (val >= 50) return '#d69e2e';
+    return '#3182ce';
+  });
+
+  chartIndicadores = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: valores,
+        backgroundColor: colores,
+        borderRadius: 4,
+        barThickness: 30
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.raw + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            display: false
+          },
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        },
+        y: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Renderizar lista de responsables
+ */
+function renderizarResponsables(responsables) {
+  const container = document.getElementById('responsables-list');
+  container.innerHTML = '';
+
+  responsables.forEach(resp => {
+    const row = document.createElement('div');
+    row.className = 'responsable-row';
+
+    // Determinar clase de badge para cumplimiento
+    let badgeCumpClass = 'badge-danger';
+    if (resp.porcentajeCumplimiento >= 95) badgeCumpClass = 'badge-success';
+    else if (resp.porcentajeCumplimiento >= 50) badgeCumpClass = 'badge-warning';
+
+    // Determinar clase de badge para avance
+    let badgeAvanceClass = 'badge-danger';
+    if (resp.porcentajeAvance >= 75) badgeAvanceClass = 'badge-success';
+    else if (resp.porcentajeAvance >= 50) badgeAvanceClass = 'badge-warning';
+
+    row.innerHTML = `
+      <span class="responsable-name">${resp.nombre}</span>
+      <span class="responsable-stat">${resp.total}</span>
+      <span class="responsable-stat ok">${resp.ok}</span>
+      <span class="responsable-stat proceso">${resp.enProceso}</span>
+      <span class="responsable-stat noprog">${resp.noProg}</span>
+      <span class="responsable-stat retrasado">${resp.retrasado}</span>
+      <span><span class="badge ${badgeCumpClass}">${resp.porcentajeCumplimiento}%</span></span>
+      <span><span class="badge ${badgeAvanceClass}">${resp.porcentajeAvance}%</span></span>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+/**
+ * Renderizar barras horizontales (área/sector)
+ */
+function renderizarBarras(containerId, datos) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+
+  datos.forEach(item => {
+    const barItem = document.createElement('div');
+    barItem.className = 'bar-item';
+
+    // Color según porcentaje
+    let color = '#e53e3e';
+    if (item.porcentaje >= 95) color = '#38a169';
+    else if (item.porcentaje >= 50) color = '#d69e2e';
+    else if (item.porcentaje >= 30) color = '#3182ce';
+
+    barItem.innerHTML = `
+      <span class="bar-label">${item.nombre}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: ${item.porcentaje}%; background-color: ${color}">
+          <span>${item.porcentaje}%</span>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(barItem);
+  });
+}
+</script>
