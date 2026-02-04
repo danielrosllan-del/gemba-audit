@@ -1,0 +1,448 @@
+<!-- ============================================
+     SEGUIMIENTO VIEW - Tabla de Seguimiento de Acciones
+     ============================================ -->
+
+<!-- Encabezado -->
+<div style="text-align: center; margin-bottom: 16px;">
+  <span style="color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">
+    VISTA SEGUIMIENTO (RDG OCULTA)
+  </span>
+</div>
+
+<!-- Filtros -->
+<div class="filters-bar">
+  <div class="filter-group">
+    <label>PLANTA</label>
+    <select id="seg-filter-planta" onchange="aplicarFiltrosSeguimiento()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>ÁREA</label>
+    <select id="seg-filter-area" onchange="aplicarFiltrosSeguimiento()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>SECTOR</label>
+    <select id="seg-filter-sector" onchange="aplicarFiltrosSeguimiento()">
+      <option value="Todos">Todos</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>FECHA REG.</label>
+    <input type="date" id="seg-filter-fecha" onchange="aplicarFiltrosSeguimiento()">
+  </div>
+  <div class="filter-group">
+    <label>TIPO</label>
+    <select id="seg-filter-tipo" onchange="aplicarFiltrosSeguimiento()">
+      <option value="Todas">Todas</option>
+    </select>
+  </div>
+</div>
+
+<div class="filters-bar" style="margin-top: -16px;">
+  <div class="filter-group">
+    <label>PILAR TPM</label>
+    <select id="seg-filter-pilar" onchange="aplicarFiltrosSeguimiento()">
+      <option value="Todos">Todos</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>ESTADO</label>
+    <select id="seg-filter-estado" onchange="aplicarFiltrosSeguimiento()">
+      <option value="">Filtrar Estados...</option>
+      <option value="Concluido">Concluido</option>
+      <option value="En Proceso">En Proceso</option>
+      <option value="Retrasado">Retrasado</option>
+      <option value="No Programado">No Programado</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>REPORTADO POR</label>
+    <input type="text" id="seg-filter-reportado" placeholder="..." onkeyup="aplicarFiltrosSeguimiento()">
+  </div>
+  <div class="filter-group">
+    <label>RESP.</label>
+    <input type="text" id="seg-filter-responsable" placeholder="..." onkeyup="aplicarFiltrosSeguimiento()">
+  </div>
+  <div class="filter-group">
+    <label>BUSCAR</label>
+    <input type="text" id="seg-filter-buscar" placeholder="..." onkeyup="aplicarFiltrosSeguimiento()">
+  </div>
+</div>
+
+<!-- Tabla de Seguimiento -->
+<div class="table-container">
+  <!-- Header con estadísticas -->
+  <div class="table-header">
+    <div></div>
+    <div class="table-stats">
+      <div class="table-stat">
+        <span class="table-stat-value" style="color: var(--primary-color);" id="seg-total">0</span>
+        <span class="table-stat-label">TOTAL</span>
+      </div>
+      <div class="table-stat">
+        <span class="table-stat-value" style="color: var(--success-color);" id="seg-ok">0</span>
+        <span class="table-stat-label">OK</span>
+      </div>
+      <div class="table-stat">
+        <span class="table-stat-value" style="color: var(--info-color);" id="seg-proceso">0</span>
+        <span class="table-stat-label">EN PROC</span>
+      </div>
+      <div class="table-stat">
+        <span class="table-stat-value" style="color: var(--text-muted);" id="seg-noprog">0</span>
+        <span class="table-stat-label">NO PROG</span>
+      </div>
+      <div class="table-stat">
+        <span class="table-stat-value" style="color: var(--danger-color);" id="seg-atr">0</span>
+        <span class="table-stat-label">ATR</span>
+      </div>
+      <div class="table-stat">
+        <span class="table-stat-value" style="color: var(--secondary-color);" id="seg-cump">0%</span>
+        <span class="table-stat-label">% CUMP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-wrapper">
+    <table id="tabla-seguimiento">
+      <thead>
+        <tr>
+          <th>ESTADO</th>
+          <th>HERRAMIENTA</th>
+          <th>PILAR TPM</th>
+          <th>IND.</th>
+          <th>MOTIVO</th>
+          <th>RESPONSABLE</th>
+          <th>F. REGISTRO</th>
+          <th>FECHA COMP.</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-seguimiento">
+        <!-- Se llena dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Variable para almacenar acciones
+let accionesSeguimiento = [];
+
+/**
+ * Cargar datos de seguimiento
+ */
+function cargarSeguimiento() {
+  mostrarLoading();
+
+  const filtros = obtenerFiltrosSeguimiento();
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        accionesSeguimiento = resultado.data;
+        renderizarTablaSeguimiento(accionesSeguimiento);
+        actualizarEstadisticasSeguimiento(accionesSeguimiento);
+      } else {
+        mostrarToast('Error al cargar datos: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .getAcciones(filtros);
+}
+
+/**
+ * Obtener filtros de seguimiento
+ */
+function obtenerFiltrosSeguimiento() {
+  return {
+    planta: document.getElementById('seg-filter-planta').value,
+    area: document.getElementById('seg-filter-area').value,
+    sector: document.getElementById('seg-filter-sector').value,
+    tipoReunion: document.getElementById('seg-filter-tipo').value,
+    estado: document.getElementById('seg-filter-estado').value,
+    pilarTPM: document.getElementById('seg-filter-pilar').value
+  };
+}
+
+/**
+ * Aplicar filtros
+ */
+function aplicarFiltrosSeguimiento() {
+  const busqueda = document.getElementById('seg-filter-buscar').value.toLowerCase();
+  const reportado = document.getElementById('seg-filter-reportado').value.toLowerCase();
+  const responsable = document.getElementById('seg-filter-responsable').value.toLowerCase();
+
+  let accionesFiltradas = accionesSeguimiento.filter(accion => {
+    // Filtro de búsqueda general
+    if (busqueda) {
+      const texto = (accion.motivo + accion.plan + accion.responsables).toLowerCase();
+      if (!texto.includes(busqueda)) return false;
+    }
+
+    // Filtro reportado por
+    if (reportado && accion.reportadoPor) {
+      if (!accion.reportadoPor.toLowerCase().includes(reportado)) return false;
+    }
+
+    // Filtro responsable
+    if (responsable && accion.responsables) {
+      if (!accion.responsables.toLowerCase().includes(responsable)) return false;
+    }
+
+    return true;
+  });
+
+  renderizarTablaSeguimiento(accionesFiltradas);
+  actualizarEstadisticasSeguimiento(accionesFiltradas);
+}
+
+/**
+ * Renderizar tabla de seguimiento
+ */
+function renderizarTablaSeguimiento(acciones) {
+  const tbody = document.getElementById('tbody-seguimiento');
+  tbody.innerHTML = '';
+
+  acciones.forEach(accion => {
+    const tr = document.createElement('tr');
+
+    // Determinar clase de estado
+    let statusClass = 'status-proceso';
+    if (accion.estado === 'Concluido') statusClass = 'status-concluido';
+    else if (accion.estado === 'Retrasado') statusClass = 'status-retrasado';
+
+    // Formatear indicadores
+    const indicadores = accion.indicadores ?
+      accion.indicadores.split(',').map(i =>
+        `<a href="#" class="indicador-link" onclick="filtrarPorIndicador('${i}')">${i}</a>`
+      ).join(', ') : '-';
+
+    // Formatear fechas
+    const fechaRegistro = formatearFecha(accion.fechaRegistro);
+    const fechaCompromiso = formatearFecha(accion.fechaCompromiso);
+
+    tr.innerHTML = `
+      <td><span class="status-badge ${statusClass}">${accion.estado}</span></td>
+      <td>
+        <div>${accion.herramienta || '-'}</div>
+        ${accion.codigoHerramienta ? `<span class="herramienta-badge">${accion.codigoHerramienta}</span>` : ''}
+      </td>
+      <td>${accion.pilarTPM || '-'}</td>
+      <td>${indicadores}</td>
+      <td class="motivo-cell">
+        <div class="motivo-title" onclick="verDetalle('${accion.id}')">${truncarTexto(accion.motivo, 50)}</div>
+        <div class="motivo-subtitle">${truncarTexto(accion.plan, 40)}</div>
+      </td>
+      <td>${accion.responsables || '-'}</td>
+      <td>${fechaRegistro}</td>
+      <td>${fechaCompromiso}</td>
+      <td>
+        <button class="action-btn" onclick="verDetalle('${accion.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+          </svg>
+          Ver
+        </button>
+        ${accion.estado !== 'Concluido' ? `
+        <button class="action-btn" onclick="marcarConcluido('${accion.id}')" title="Marcar como concluido">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22,4 12,14.01 9,11.01"/>
+          </svg>
+        </button>
+        ` : ''}
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  // Mensaje si no hay datos
+  if (acciones.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">
+          No se encontraron acciones con los filtros seleccionados.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+/**
+ * Actualizar estadísticas de la tabla
+ */
+function actualizarEstadisticasSeguimiento(acciones) {
+  const total = acciones.length;
+  let ok = 0, proceso = 0, noProg = 0, retrasado = 0;
+
+  acciones.forEach(accion => {
+    switch(accion.estado) {
+      case 'Concluido': ok++; break;
+      case 'En Proceso': proceso++; break;
+      case 'No Programado': noProg++; break;
+      case 'Retrasado': retrasado++; break;
+    }
+  });
+
+  const cumplimiento = total > 0 ? Math.round((ok / total) * 100) : 0;
+
+  document.getElementById('seg-total').textContent = total;
+  document.getElementById('seg-ok').textContent = ok;
+  document.getElementById('seg-proceso').textContent = proceso;
+  document.getElementById('seg-noprog').textContent = noProg;
+  document.getElementById('seg-atr').textContent = retrasado;
+  document.getElementById('seg-cump').textContent = cumplimiento + '%';
+}
+
+/**
+ * Ver detalle de acción
+ */
+function verDetalle(id) {
+  const accion = accionesSeguimiento.find(a => a.id === id);
+  if (!accion) return;
+
+  const contenido = document.getElementById('detalle-contenido');
+  contenido.innerHTML = `
+    <div style="text-align: left;">
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Estado</label>
+          <p><span class="status-badge status-${accion.estado === 'Concluido' ? 'concluido' : accion.estado === 'Retrasado' ? 'retrasado' : 'proceso'}">${accion.estado}</span></p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Herramienta</label>
+          <p style="font-weight: 500;">${accion.herramienta || '-'}</p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Planta</label>
+          <p>${accion.planta || '-'}</p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Área / Sector</label>
+          <p>${accion.area || '-'} / ${accion.sector || '-'}</p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Responsable</label>
+          <p style="font-weight: 500;">${accion.responsables || '-'}</p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Email</label>
+          <p>${accion.email || '-'}</p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Fecha Registro</label>
+          <p>${formatearFecha(accion.fechaRegistro)}</p>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Fecha Compromiso</label>
+          <p>${formatearFecha(accion.fechaCompromiso)}</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Motivo</label>
+        <p style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; margin-top: 4px;">${accion.motivo || '-'}</p>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Plan</label>
+        <p style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; margin-top: 4px;">${accion.plan || '-'}</p>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Indicadores</label>
+        <p style="margin-top: 4px;">
+          ${accion.indicadores ? accion.indicadores.split(',').map(i =>
+            `<span class="badge badge-info" style="margin-right: 4px;">${i}</span>`
+          ).join('') : '-'}
+        </p>
+      </div>
+
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Comentarios</label>
+        <p style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; margin-top: 4px;">${accion.comentarios || 'Sin comentarios'}</p>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+      ${accion.estado !== 'Concluido' ? `
+      <button class="btn btn-primary" onclick="marcarConcluido('${accion.id}'); cerrarModal('modal-detalle');">
+        Marcar como Concluido
+      </button>
+      ` : ''}
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-detalle')">Cerrar</button>
+    </div>
+  `;
+
+  abrirModal('modal-detalle');
+}
+
+/**
+ * Marcar acción como concluida
+ */
+function marcarConcluido(id) {
+  if (!confirm('¿Está seguro de marcar esta acción como concluida?')) return;
+
+  mostrarLoading();
+
+  google.script.run
+    .withSuccessHandler(function(resultado) {
+      ocultarLoading();
+      if (resultado.success) {
+        mostrarToast('Acción marcada como concluida', 'success');
+        cargarSeguimiento(); // Recargar datos
+      } else {
+        mostrarToast('Error: ' + resultado.error, 'error');
+      }
+    })
+    .withFailureHandler(function(error) {
+      ocultarLoading();
+      mostrarToast('Error de conexión: ' + error.message, 'error');
+    })
+    .actualizarAccion({
+      id: id,
+      estado: 'Concluido',
+      fechaConclusion: new Date().toISOString().split('T')[0]
+    });
+}
+
+/**
+ * Filtrar por indicador
+ */
+function filtrarPorIndicador(indicador) {
+  // Implementar filtro por indicador si es necesario
+  console.log('Filtrar por indicador:', indicador);
+}
+
+/**
+ * Formatear fecha
+ */
+function formatearFecha(fecha) {
+  if (!fecha) return '-';
+  const d = new Date(fecha);
+  return d.toLocaleDateString('es-PE', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit'
+  });
+}
+
+/**
+ * Truncar texto
+ */
+function truncarTexto(texto, maxLength) {
+  if (!texto) return '-';
+  if (texto.length <= maxLength) return texto;
+  return texto.substring(0, maxLength) + '...';
+}
+</script>
